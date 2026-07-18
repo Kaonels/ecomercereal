@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nova Studio · Mi Agencia</title>
+<style>
+:root{--bg:#0a0e14;--bg2:#0c1119;--panel:#121a26;--panel2:#18212f;--line:#202b3a;--ink:#eaf0f6;--ink2:#a6b6c8;--ink3:#6b7d92;--iris:#8b7cf6;--iris-d:#5b4bc4;--iris-ink:#b7adfb;--teal:#2dd4bf;--rose:#f472b6;--gold:#f5b544;--good:#34d399;--mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(120% 90% at 50% -10%,#141a2b,var(--bg));color:var(--ink);font-family:var(--sans);min-height:100vh}
+.wrap{max-width:1060px;margin:0 auto;padding:48px 22px 70px}
+.brand{display:flex;align-items:center;gap:13px;margin-bottom:8px}
+.logo{width:44px;height:44px;border-radius:12px;background:conic-gradient(from 130deg,var(--iris),var(--rose),var(--teal),var(--iris));display:grid;place-items:center;box-shadow:0 0 0 1px rgba(139,124,246,.3),0 10px 26px rgba(91,75,196,.45)}
+.logo svg{width:24px;height:24px}
+.brand b{font-size:22px;letter-spacing:-.02em;display:block}
+.brand span{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--ink3);text-transform:uppercase}
+h1{font-size:30px;letter-spacing:-.02em;margin:26px 0 8px;text-wrap:balance}
+.sub{color:var(--ink2);font-size:15px;max-width:66ch;line-height:1.6}
+.eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--iris-ink);margin:38px 0 14px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:820px){.g2,.g3{grid-template-columns:1fr}}
+.card{display:block;text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 21px;transition:transform .16s,border-color .16s,box-shadow .16s}
+.card:hover{transform:translateY(-4px);border-color:rgba(139,124,246,.45);box-shadow:0 16px 36px rgba(0,0,0,.4)}
+.card.hero{background:linear-gradient(140deg,rgba(139,124,246,.16),var(--panel));border-color:rgba(139,124,246,.35)}
+.card .ic{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;font-size:21px;background:var(--panel2);border:1px solid var(--line);margin-bottom:13px}
+.card h3{margin:0 0 5px;font-size:17px}
+.card p{margin:0;font-size:13px;color:var(--ink2);line-height:1.5}
+.card .go{margin-top:12px;font-family:var(--mono);font-size:11.5px;color:var(--iris-ink)}
+.badge{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:6px;margin-left:8px;vertical-align:2px}
+.b-ready{background:rgba(52,211,153,.16);color:var(--good)}.b-wip{background:rgba(245,181,68,.16);color:var(--gold)}
+.tiny{font-family:var(--mono);font-size:11px;color:var(--ink3);margin-top:8px}
+.note{margin-top:34px;border-left:3px solid var(--iris);background:rgba(139,124,246,.07);border-radius:0 12px 12px 0;padding:15px 18px;font-size:13px;color:var(--ink2);line-height:1.6}
+.note b{color:var(--ink)}
+.foot{margin-top:34px;font-family:var(--mono);font-size:11px;color:var(--ink3);letter-spacing:.04em;border-top:1px solid var(--line);padding-top:16px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.chips a{text-decoration:none;font-family:var(--mono);font-size:11px;color:var(--ink2);border:1px solid var(--line);border-radius:20px;padding:5px 12px}
+.chips a:hover{color:var(--iris-ink);border-color:var(--iris)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 6.9L21 11l-6.6 2.1L12 20l-2.4-6.9L3 11l6.6-2.1z" fill="#f0edff"/></svg></div>
+    <div><b>Nova Studio</b><span>Mi agencia de ecommerce · una sola agencia</span></div>
+  </div>
+  <h1>Bienvenido a tu agencia</h1>
+  <p class="sub">Una sola agencia con un equipo de agentes que encuentra productos ganadores, les crea su tienda y su contenido, y te lleva a la primera venta. Cada tienda de abajo es un producto dentro de la agencia. Abre lo que quieras con un click.</p>
+
+  <div class="eyebrow">◆ El centro de mando</div>
+  <div class="grid g2">
+    <a class="card hero" href="AgenciaNova/agencia.html">
+      <div class="ic">🛰️</div>
+      <h3>Abrir la Agencia</h3>
+      <p>Sala de agentes en vivo, Bóveda-historial, Radar TikTok, Scanner de tiendas ganadoras y control de calidad. El cerebro de todo.</p>
+      <div class="go">Entrar →</div>
+    </a>
+    <a class="card" href="AgenciaNova/store.html">
+      <div class="ic">⚡</div>
+      <h3>Store Builder</h3>
+      <p>Genera la tienda 3D de cualquier producto. Incluye generador de imágenes integrado (con tu API key de Google), CSV de Shopify y modo dueño.</p>
+      <div class="go">Construir tienda →</div>
+    </a>
+  </div>
+
+  <div class="eyebrow">◆ Tiendas listas (una por producto, contenido distinto)</div>
+  <div class="grid g3">
+    <a class="card" href="AgenciaNova/store.html?p=tote">
+      <div class="ic">👜</div>
+      <h3>Bolso Tote · Maison Vela <span class="badge b-wip">Lujo</span></h3>
+      <p>Moda/lujo. Nombre editable en Modo dueño. Logo dorado, tienda convertidora.</p>
+      <div class="go">Abrir tienda →</div>
+    </a>
+    <a class="card" href="AgenciaNova/store.html?p=guasha">
+      <div class="ic">💎</div>
+      <h3>Gua Sha · Solusmoon <span class="badge b-ready">QA 9/9</span></h3>
+      <p>Belleza. Margen 88%. Tienda + contenido + CSV listos.</p>
+      <div class="go">Abrir tienda →</div>
+    </a>
+    <a class="card" href="AgenciaNova/store.html?p=led">
+      <div class="ic">🔴</div>
+      <h3>Mascarilla LED · Solusmoon <span class="badge b-wip">QA 6/9</span></h3>
+      <p>Belleza. En producción — falta modelo y video.</p>
+      <div class="go">Abrir tienda →</div>
+    </a>
+    <a class="card" href="AgenciaNova/store.html?p=coord">
+      <div class="ic">👗</div>
+      <h3>Conjunto · Vela <span class="badge b-wip">QA 7/9</span></h3>
+      <p>Moda mujer. Co-ord set GRWM. En producción.</p>
+      <div class="go">Abrir tienda →</div>
+    </a>
+  </div>
+
+  <div class="eyebrow">◆ Tienda DesconectaloYa (producto digital: ebook)</div>
+  <div class="grid g2">
+    <a class="card" href="DesconectaloYa/dashboard.html">
+      <div class="ic">📗</div>
+      <h3>Dashboard DesconectaloYa</h3>
+      <p>La tienda del ebook "Desconecta a tus Hijos YA" + productos anti-pantalla en bundle. Es una tienda más de la agencia.</p>
+      <div class="go">Abrir dashboard →</div>
+    </a>
+    <a class="card" href="AgenciaNova/entregables/solusmoon-guasha-content-pack.html">
+      <div class="ic">🌙</div>
+      <h3>Content Pack (ejemplo)</h3>
+      <p>Lo que los agentes producen por producto: artículo SEO + ficha + anuncios + prompts de imagen/video.</p>
+      <div class="go">Ver entregable →</div>
+    </a>
+  </div>
+  <div class="chips">
+    <a href="DesconectaloYa/ebook/DESCONECTA_A_TUS_HIJOS_YA_Ebook_v2.pdf">📄 Ebook PDF</a>
+    <a href="DesconectaloYa/ebook/BONUS_Tracker_21_Dias.pdf">Bonus tracker</a>
+    <a href="DesconectaloYa/ebook/BONUS_50_Actividades.pdf">Bonus actividades</a>
+    <a href="LEEME.md">📘 Guía (LEEME)</a>
+  </div>
+
+  <div class="note">
+    <b>Para publicar de verdad:</b> 1) En el Store Builder, entra en <b>👁 Modo dueño</b> y genera las imágenes con tu <b>API key de Google</b> (gratis en aistudio.google.com). 2) Pulsa <b>⬇ CSV Shopify</b> para importar el producto. 3) Sube tu foto real del producto por Shopify (la tienda es plantilla). 4) Copia los hooks y el guion UGC para TikTok/Facebook. Nada de reseñas inventadas: conéctalas con Judge.me o Loox (gratis) y serán reales.
+  </div>
+  <div class="foot">NOVA STUDIO · Guardado en tu Escritorio · Ábrelo con doble-click · Todo funciona offline</div>
+</div>
+</body>
+</html>
