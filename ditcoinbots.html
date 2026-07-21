@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DitcoinBots — Trading bots con agentes autónomos · Solana memecoins + Futuros</title>
+<meta name="description" content="DitcoinBots: KaoMemeBot (mesa de 4 agentes para memecoins Solana) + KAO System (indicador y bot de futuros). Demo gratis. Compra única = código fuente + guía de instalación.">
+<meta property="og:title" content="DitcoinBots — bots que cazan pumps mientras vives tu vida">
+<meta property="og:description" content="Demo gratis en papel con precios reales. Licencia desde $20/mes o $150 para siempre con código fuente incluido.">
+<style>
+  :root{
+    --bg:#07070a; --panel:#101014; --panel2:#16161c; --border:#26262e;
+    --text:#e8e8ec; --muted:#8f8f9a; --dim:#5a5a66;
+    --green:#22c55e; --green2:#4ade80; --red:#ef4444; --amber:#f59e0b;
+    --purple:#a78bfa; --cyan:#22d3ee; --pink:#f472b6; --tg:#2AABEE;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;overflow-x:hidden}
+  ::selection{background:rgba(34,197,94,.35)}
+  ::-webkit-scrollbar{width:9px}::-webkit-scrollbar-thumb{background:#2c2c34;border-radius:5px}
+  a{color:var(--green);text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+
+  /* offer bar */
+  .offerbar{position:fixed;top:0;left:0;right:0;z-index:110;background:linear-gradient(90deg,#052e16,#064e3b);border-bottom:1px solid rgba(34,197,94,.35);text-align:center;font-size:12.5px;font-weight:700;padding:8px 12px;color:#bbf7d0}
+  .offerbar b{color:#4ade80}
+  .offerbar .cd{font-variant-numeric:tabular-nums;color:#fff}
+
+  header{position:fixed;top:34px;left:0;right:0;z-index:100;backdrop-filter:blur(14px);background:rgba(7,7,10,.72);border-bottom:1px solid rgba(38,38,46,.6)}
+  .nav{display:flex;align-items:center;gap:18px;height:58px}
+  .logo{font-weight:900;font-size:19px;letter-spacing:.5px;cursor:pointer;user-select:none}
+  .logo b{background:linear-gradient(90deg,var(--green),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .nav a.lnk{color:var(--muted);font-size:13.5px;font-weight:600}
+  .nav a.lnk:hover{color:var(--text)}
+  .spacer{flex:1}
+  .lang{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:12px;font-weight:800}
+  .lang span{padding:6px 11px;cursor:pointer;color:var(--muted)}
+  .lang span.on{background:var(--green);color:#04120a}
+  .btn{display:inline-block;cursor:pointer;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;padding:10px 20px;font-size:14px;font-weight:700;transition:.2s;text-align:center}
+  .btn:hover{transform:translateY(-2px);border-color:#3a3a44}
+  .btn.primary{background:linear-gradient(135deg,#16a34a,#22c55e);border:none;color:#04120a;box-shadow:0 0 24px rgba(34,197,94,.35)}
+  .btn.primary:hover{box-shadow:0 0 36px rgba(34,197,94,.55)}
+  .btn.ghost{background:transparent}
+  .btn.small{padding:7px 14px;font-size:12.5px;border-radius:8px}
+  .btn.tgb{background:var(--tg);border:none;color:#fff}
+
+  /* hero */
+  .hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;padding-top:40px}
+  #hero3d{position:absolute;inset:0;width:100%;height:100%}
+  .hero-grad{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 70% 40%,rgba(34,197,94,.10),transparent),radial-gradient(ellipse 40% 40% at 20% 70%,rgba(167,139,250,.10),transparent);pointer-events:none}
+  .hero-inner{position:relative;z-index:2;padding:120px 0 70px}
+  .kicker{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(34,197,94,.35);background:rgba(34,197,94,.08);color:var(--green2);font-size:12px;font-weight:700;letter-spacing:1.2px;border-radius:999px;padding:7px 14px;text-transform:uppercase}
+  .kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.6s infinite}
+  @keyframes pulse{50%{opacity:.35;transform:scale(.8)}}
+  h1{font-size:clamp(36px,6vw,70px);line-height:1.04;font-weight:900;margin:22px 0 18px;letter-spacing:-1px}
+  h1 .g{background:linear-gradient(90deg,var(--green),var(--cyan) 55%,var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{font-size:clamp(15px,2vw,18.5px);color:var(--muted);max-width:660px;line-height:1.65}
+  .sub b{color:var(--text)}
+  .cta-row{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap}
+  .hero-stats{display:flex;gap:34px;margin-top:44px;flex-wrap:wrap}
+  .hstat .n{font-size:26px;font-weight:900;font-variant-numeric:tabular-nums}
+  .hstat .l{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+
+  section{padding:88px 0;position:relative}
+  .sec-kicker{color:var(--green);font-size:12.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+  h2{font-size:clamp(26px,3.6vw,40px);font-weight:900;letter-spacing:-.5px;margin-bottom:14px}
+  .lead{color:var(--muted);font-size:16px;max-width:660px;line-height:1.6}
+  .alt{background:linear-gradient(180deg,transparent,rgba(16,16,20,.5) 18%,rgba(16,16,20,.5) 82%,transparent)}
+  .reveal{opacity:0;transform:translateY(34px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.on{opacity:1;transform:none}
+
+  /* product cards */
+  .bots{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:44px;perspective:1400px}
+  @media(max-width:900px){.bots{grid-template-columns:1fr}}
+  .bot-card{position:relative;background:linear-gradient(180deg,var(--panel),#0c0c10);border:1px solid var(--border);border-radius:20px;padding:30px;transition:transform .18s ease,box-shadow .3s;transform-style:preserve-3d;will-change:transform}
+  .bot-card:hover{box-shadow:0 24px 70px rgba(0,0,0,.55),0 0 40px rgba(34,197,94,.12)}
+  .bot-emoji{font-size:36px}
+  .bot-card h3{font-size:23px;font-weight:900;margin:12px 0 4px}
+  .tagx{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:1px;padding:4px 10px;border-radius:6px;text-transform:uppercase;margin-left:8px;vertical-align:middle}
+  .tagx.sol{background:rgba(167,139,250,.15);color:var(--purple)}
+  .tagx.fut{background:rgba(34,211,238,.12);color:var(--cyan)}
+  .bot-card p{color:var(--muted);font-size:14.5px;line-height:1.65;margin:12px 0 18px}
+  .feat{display:flex;gap:10px;align-items:flex-start;margin:9px 0;font-size:13.5px;color:#c9c9d2}
+  .feat .i{color:var(--green);font-weight:900}
+  .bot-foot{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap;align-items:center}
+  .demo-note{font-size:11.5px;color:var(--dim);line-height:1.5}
+
+  /* charts */
+  .charts{display:grid;grid-template-columns:1.25fr 1fr;gap:22px;margin-top:44px}
+  @media(max-width:900px){.charts{grid-template-columns:1fr}}
+  .chart-card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:22px}
+  .chart-card h4{font-size:15px;font-weight:800;margin-bottom:4px}
+  .chart-card .cap{font-size:12px;color:var(--dim);margin-bottom:14px}
+  canvas.chart{width:100%;display:block}
+  .legend{display:flex;gap:16px;margin-top:10px;font-size:11.5px;color:var(--muted);flex-wrap:wrap}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+  /* delivery / install */
+  .del{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:44px}
+  @media(max-width:900px){.del{grid-template-columns:1fr}}
+  .del-card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:26px}
+  .del-card h3{font-size:17px;font-weight:900;margin-bottom:14px}
+  .dstep{display:flex;gap:12px;margin:12px 0;font-size:13.5px;color:#c9c9d2;line-height:1.6}
+  .dstep .n{flex-shrink:0;width:26px;height:26px;border-radius:8px;background:rgba(34,197,94,.15);color:var(--green2);font-weight:900;display:flex;align-items:center;justify-content:center;font-size:13px}
+  .timepill{display:inline-block;background:rgba(34,211,238,.1);color:var(--cyan);font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;margin-top:10px}
+
+  /* audiences */
+  .aud{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:44px}
+  @media(max-width:900px){.aud{grid-template-columns:1fr}}
+  .aud-card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:28px}
+  .aud-card h3{font-size:19px;font-weight:900;margin-bottom:16px}
+  .aud-card h3 span{font-size:24px;margin-right:8px}
+
+  /* compare table */
+  .cmp{width:100%;border-collapse:collapse;margin-top:40px;font-size:13.5px}
+  .cmp th{padding:13px 14px;text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)}
+  .cmp th.hl{color:var(--green2)}
+  .cmp td{padding:13px 14px;border-bottom:1px solid #1c1c22;color:#c9c9d2}
+  .cmp td.y{color:var(--green2);font-weight:800}
+  .cmp td.n{color:var(--dim)}
+  .cmp tr td:nth-child(2){background:rgba(34,197,94,.05)}
+  .cmp-wrap{overflow-x:auto}
+
+  /* pricing */
+  .ptoggle{display:inline-flex;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:26px;font-weight:800;font-size:13.5px}
+  .ptoggle span{padding:11px 26px;cursor:pointer;color:var(--muted);transition:.2s}
+  .ptoggle span.on{background:var(--green);color:#04120a}
+  .ptoggle .save{font-size:10.5px;background:rgba(167,139,250,.2);color:var(--purple);border-radius:999px;padding:2px 8px;margin-left:6px}
+  .prices{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:38px;align-items:stretch}
+  @media(max-width:860px){.prices{grid-template-columns:1fr}}
+  .price-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:30px;display:flex;flex-direction:column;position:relative}
+  .price-card.pro{border-color:rgba(34,197,94,.5);background:linear-gradient(180deg,rgba(34,197,94,.07),var(--panel) 40%);box-shadow:0 0 50px rgba(34,197,94,.10)}
+  .price-card h3{font-size:17px;font-weight:900}
+  .price{font-size:44px;font-weight:900;margin:12px 0 2px}
+  .price small{font-size:14px;color:var(--muted);font-weight:600}
+  .price .old{font-size:19px;color:var(--dim);text-decoration:line-through;margin-right:8px;font-weight:700}
+  .price-card ul{list-style:none;margin:18px 0;flex:1}
+  .price-card li{display:flex;gap:10px;font-size:13.5px;color:#c9c9d2;margin:9px 0;line-height:1.5}
+  .badge-pop{position:absolute;top:-13px;left:26px;background:linear-gradient(90deg,var(--green),var(--cyan));color:#04120a;font-size:11px;font-weight:900;letter-spacing:1px;padding:5px 12px;border-radius:999px}
+  .disc-note{font-size:12px;color:var(--purple);font-weight:700;margin-top:8px}
+  .pay-note{text-align:center;color:var(--muted);font-size:12.5px;margin-top:26px;max-width:680px;margin-left:auto;margin-right:auto;line-height:1.7}
+  .pp{display:inline-flex;align-items:center;gap:6px;font-weight:800;color:#a8c6ff}
+
+  /* newsletter */
+  .news{background:linear-gradient(135deg,rgba(34,197,94,.10),rgba(167,139,250,.10));border:1px solid rgba(34,197,94,.35);border-radius:24px;padding:44px;text-align:center;margin-top:20px}
+  .news h2{margin-bottom:8px}
+  .news p{color:var(--muted);max-width:560px;margin:0 auto 22px;font-size:14.5px;line-height:1.6}
+  .news-form{display:flex;gap:10px;max-width:460px;margin:0 auto;flex-wrap:wrap;justify-content:center}
+  .news-form input{flex:1;min-width:220px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:13px 16px;font-size:14px}
+  .news-form input:focus{outline:none;border-color:var(--green)}
+  .code-reveal{margin-top:18px;font-size:15px;display:none}
+  .code-reveal code{background:#052e16;border:1px dashed var(--green);color:var(--green2);border-radius:8px;padding:8px 18px;font-size:18px;font-weight:900;letter-spacing:2px}
+
+  /* faq */
+  .faq{max-width:780px;margin:40px auto 0}
+  .faq details{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px 22px;margin-bottom:12px}
+  .faq summary{cursor:pointer;font-weight:700;font-size:15px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:14px}
+  .faq summary::after{content:'+';color:var(--green);font-size:20px;font-weight:900;transition:.2s;flex-shrink:0}
+  .faq details[open] summary::after{transform:rotate(45deg)}
+  .faq p{color:var(--muted);font-size:13.5px;line-height:1.7;margin-top:12px}
+
+  .risk{background:#190f0f;border:1px solid #7f1d1d;border-radius:16px;padding:26px;font-size:13.5px;color:#d8b8b8;line-height:1.7;margin-top:30px}
+  .risk strong{color:#ff8a80}
+
+  footer{border-top:1px solid var(--border);padding:40px 0 60px;margin-top:40px}
+  .foot{display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--dim);font-size:13px}
+  .disclaimer{font-size:11.5px;color:var(--dim);line-height:1.7;margin-top:18px;max-width:900px}
+
+  /* modals */
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+  .modal-bg.open{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:30px;max-width:540px;width:100%;position:relative;max-height:90vh;overflow-y:auto}
+  .modal h3{font-size:20px;font-weight:900;margin-bottom:8px}
+  .modal p{font-size:13.5px;color:var(--muted);line-height:1.65;margin:10px 0}
+  .modal .x{position:absolute;top:14px;right:18px;cursor:pointer;color:var(--dim);font-size:22px;font-weight:700}
+  .modal .x:hover{color:var(--text)}
+  .paybox{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin:12px 0;font-size:13px;line-height:1.7}
+  .paybox b{color:var(--green2)}
+  code{background:#1c1c22;border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:12.5px;color:var(--cyan)}
+  .bigprice{font-size:30px;font-weight:900;color:var(--green2)}
+
+  .marquee{overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(16,16,20,.6);padding:13px 0;white-space:nowrap}
+  .marquee-inner{display:inline-block;animation:mq 30s linear infinite;font-size:13px;color:var(--muted);font-weight:600}
+  @keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .marquee b{color:var(--green2)} .marquee .r{color:var(--red)}
+
+  .fl-tg{position:fixed;bottom:26px;right:26px;z-index:90;background:var(--tg);color:#fff;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;text-decoration:none;box-shadow:0 8px 28px rgba(42,171,238,.45);transition:transform .2s}
+  .fl-tg:hover{transform:scale(1.1)}
+</style>
+</head>
+<body>
+
+<div class="offerbar"><span data-i="ob1">🚀 <b>Precio de lanzamiento</b> — se revisa a fin de mes:</span> <span class="cd" id="countdown">—</span> <span data-i="ob2">· suscríbete abajo y llévate <b>-10%</b> con tu código</span></div>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo" id="logoBtn">🪙 Ditcoin<b>Bots</b></div>
+    <span class="spacer"></span>
+    <a class="lnk" href="#bots" data-i="nav1">Bots</a>
+    <a class="lnk" href="#resultados" data-i="nav2">Gráficas</a>
+    <a class="lnk" href="#entrega" data-i="nav3">Instalación</a>
+    <a class="lnk" href="#precios" data-i="nav4">Precios</a>
+    <div class="lang"><span id="langEs">ES</span><span id="langEn">EN</span></div>
+    <a class="btn small primary" href="#precios" data-i="navCta">Conseguir key</a>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<div class="hero">
+  <canvas id="hero3d"></canvas>
+  <div class="hero-grad"></div>
+  <div class="wrap hero-inner">
+    <span class="kicker"><span class="dot"></span><span data-i="kick"> Agentes autónomos · datos reales · corre en TU máquina, sin nube</span></span>
+    <h1 data-i="h1">Bots que <span class="g">cazan pumps</span><br>mientras tú vives tu vida.</h1>
+    <p class="sub" data-i="heroSub">
+      <b>DitcoinBots</b> son dos armas: <b>KaoMemeBot</b> — una mesa de 4 agentes que escanea Solana en tiempo real,
+      snipea tokens jóvenes sin bundles, copia wallets ganadoras y se recalibra sola — y <b>KAO System</b> — indicador +
+      bot de futuros con disciplina de máquina. Pruébalo gratis. Cómpralo cuando la demo te convenza.
+    </p>
+    <div class="cta-row">
+      <a class="btn primary" href="kaomemebot.html" target="_blank" data-i="ctaDemo">▶ Probar la demo GRATIS</a>
+      <a class="btn ghost" href="#precios" data-i="ctaPrices">Ver precios ↓</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="n" data-count="4">0</div><div class="l" data-i="st1">Agentes en paralelo</div></div>
+      <div class="hstat"><div class="n" data-count="300" data-suffix="+">0</div><div class="l" data-i="st2">Chequeos por hora</div></div>
+      <div class="hstat"><div class="n" data-count="100" data-suffix="%">0</div><div class="l" data-i="st3">Datos reales de mercado</div></div>
+      <div class="hstat"><div class="n" data-fixed="$5">$5</div><div class="l" data-i="st4">Riesgo mín. por snipe</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="marquee"><div class="marquee-inner" id="mq"></div></div>
+
+<!-- ================= BOTS ================= -->
+<section id="bots">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-kicker" data-i="botsK">La suite</div>
+      <h2 data-i="botsH">Dos bots. Dos estilos. Un objetivo.</h2>
+      <p class="lead" data-i="botsL">Da igual si eres degen de memecoins o trader técnico de futuros: hay una herramienta afilada para ti — y la licencia de cada una es independiente.</p>
+    </div>
+    <div class="bots">
+      <div class="bot-card tilt reveal">
+        <div class="bot-emoji">🎯</div>
+        <h3>KaoMemeBot <span class="tagx sol">Solana · Memecoins</span></h3>
+        <p data-i="kmDesc">Mesa de 4 agentes autónomos operando en paralelo, cada uno con sus propios filtros — y un cerebro que los afina cada 3 minutos hacia tus metas.</p>
+        <div class="feat"><span class="i">✓</span><span data-i="kmF1"><b>Sniper $5:</b> tokens jóvenes con flujo orgánico — detecta y evita bundles y bots por el tamaño de los tickets</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="kmF2"><b>Cazador de pumps:</b> volumen acelerando + compradores creciendo + comunidad verificada en X</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="kmF3"><b>Copytrade on-chain:</b> sigue wallets ganadoras leyendo la blockchain — copia entradas Y salidas</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="kmF4"><b>Venta parcial + breakeven:</b> asegura la mitad en beneficio; la posición ya no puede acabar en pérdida</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="kmF5"><b>Fees reales descontadas:</b> red, prioridad, rent ATA, DEX e impacto — PnL neto de verdad</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="kmF6"><b>Modo real vía Jupiter:</b> Phantom (firmas tú) o wallet burner (automático) con topes de gasto diarios</span></div>
+        <div class="bot-foot">
+          <a class="btn primary" href="kaomemebot.html" target="_blank" data-i="kmCta">Abrir demo (papel)</a>
+          <span class="demo-note" data-i="kmNote">La demo es el bot completo con dinero simulado y precios reales.<br>El modo real se desbloquea con tu key.</span>
+        </div>
+      </div>
+      <div class="bot-card tilt reveal">
+        <div class="bot-emoji">📊</div>
+        <h3>KAO System <span class="tagx fut">Futuros · TradingView + Bybit</span></h3>
+        <p data-i="ksDesc">Para el trader clásico: indicador KAO DEGEN en TradingView + bot de ejecución self-hosted en Bybit. Tu estrategia, ejecutada sin miedo, sin codicia y sin dormir.</p>
+        <div class="feat"><span class="i">✓</span><span data-i="ksF1"><b>Dos motores:</b> tendencia (ruptura + filtro de rango) y reversión a la media (canales Donchian)</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="ksF2"><b>Volumen institucional:</b> Z-score que separa actividad "ballena" del ruido y mejora la señal</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="ksF3"><b>Order Blocks con fuerza 0-10</b> y presión compradora/vendedora — las zonas débiles ni se dibujan</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="ksF4"><b>Capa de riesgo profesional:</b> stop estructural obligatorio, tamaño por riesgo fijo, freno por racha, stop diario</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="ksF5"><b>Protección de beneficio:</b> breakeven automático, trailing por tramos, cierre parcial que asegura</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="ksF6"><b>Control remoto:</b> /config /positions /stats /pause desde cualquier navegador</span></div>
+        <div class="bot-foot">
+          <a class="btn ghost" href="#precios" data-i="ksCta">Ver planes del KAO</a>
+          <span class="demo-note" data-i="ksNote">Registro en vivo de resultados (ganancias Y pérdidas)<br>en Telegram <a href="https://t.me/degenkao" target="_blank">@degenkao</a> — sin capturas selectivas.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GRÁFICAS ================= -->
+<section id="resultados" class="alt">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-kicker" data-i="chK">Ejemplos en vivo</div>
+      <h2 data-i="chH">Así se ve el bot trabajando.</h2>
+      <p class="lead" data-i="chL">Gráficas de ejemplo con la mecánica real: curva de equity de una sesión demo y cómo la venta parcial convierte un pump en ganancia asegurada.</p>
+    </div>
+    <div class="charts">
+      <div class="chart-card reveal">
+        <h4 data-i="c1H">📈 Curva de equity — sesión demo (papel)</h4>
+        <div class="cap" data-i="c1C">Capital $100 · mesa de 4 agentes · fees reales descontadas · ejemplo ilustrativo, no promesa de rendimiento</div>
+        <canvas class="chart" id="chEquity" height="260"></canvas>
+        <div class="legend">
+          <span><i style="background:var(--green)"></i><span data-i="c1L1">Equity</span></span>
+          <span><i style="background:#3f3f46"></i><span data-i="c1L2">Capital inicial</span></span>
+          <span><i style="background:var(--purple)"></i><span data-i="c1L3">Venta parcial (asegura)</span></span>
+          <span><i style="background:var(--red)"></i><span data-i="c1L4">Stop loss (corta rápido)</span></span>
+        </div>
+      </div>
+      <div class="chart-card reveal">
+        <h4 data-i="c2H">🎯 Anatomía de un snipe con venta parcial</h4>
+        <div class="cap" data-i="c2C">Entrada $5 → +42% vende la mitad → resto corre con stop en breakeven</div>
+        <canvas class="chart" id="chCandle" height="260"></canvas>
+        <div class="legend">
+          <span><i style="background:var(--green)"></i><span data-i="c2L1">Precio</span></span>
+          <span><i style="background:var(--amber)"></i><span data-i="c2L2">Entrada sniper</span></span>
+          <span><i style="background:var(--purple)"></i><span data-i="c2L3">½ asegurada</span></span>
+          <span><i style="background:var(--cyan)"></i><span data-i="c2L4">Stop breakeven</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="charts" style="grid-template-columns:1fr 1fr">
+      <div class="chart-card reveal">
+        <h4 data-i="c3H">⚔️ Qué hace cada agente</h4>
+        <div class="cap" data-i="c3C">Reparto de operaciones por agente en una sesión demo de 24h (ejemplo)</div>
+        <canvas class="chart" id="chAgents" height="230"></canvas>
+      </div>
+      <div class="chart-card reveal">
+        <h4 data-i="c4H">🧮 Fees que otros bots te esconden</h4>
+        <div class="cap" data-i="c4C">Coste real ida+vuelta de un trade de $10 en Solana — DitcoinBots lo descuenta TODO del PnL</div>
+        <canvas class="chart" id="chFees" height="230"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ENTREGA / INSTALACIÓN ================= -->
+<section id="entrega">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-kicker" data-i="delK">Compra única = es TUYO</div>
+      <h2 data-i="delH">Te damos el código fuente y la guía. Sin depender de nadie.</h2>
+      <p class="lead" data-i="delL">La mayoría vende acceso "invite-only" que pueden quitarte mañana. Aquí, con el pago único recibes <b>el archivo fuente + guía paso a paso</b> para montarlo tú mismo en tu ordenador. Para siempre.</p>
+    </div>
+    <div class="del">
+      <div class="del-card reveal">
+        <h3>🎯 KaoMemeBot — <span data-i="delKm0">instalación</span></h3>
+        <div class="dstep"><span class="n">1</span><span data-i="delKm1"><b>Recibes 1 archivo</b> (<code>kaomemebot.html</code>) + tu key por Telegram/email tras el pago.</span></div>
+        <div class="dstep"><span class="n">2</span><span data-i="delKm2"><b>Doble clic y ya está corriendo.</b> Es un solo archivo que funciona en Chrome/Brave — sin instalar nada, sin Node, sin terminal, sin nube.</span></div>
+        <div class="dstep"><span class="n">3</span><span data-i="delKm3"><b>Pegas tu key</b> en «Wallet / En vivo → Licencia» y el modo real queda desbloqueado. Conectas Phantom o generas una burner y a cazar.</span></div>
+        <span class="timepill" data-i="delKmT">⏱️ Tiempo total: menos de 2 minutos</span>
+      </div>
+      <div class="del-card reveal">
+        <h3>📊 KAO System — <span data-i="delKs0">instalación</span></h3>
+        <div class="dstep"><span class="n">1</span><span data-i="delKs1"><b>Recibes el código Pine v6 completo</b> del indicador + el bot de ejecución (<code>bot.py</code>) + guía paso a paso con capturas.</span></div>
+        <div class="dstep"><span class="n">2</span><span data-i="delKs2"><b>Pegas el indicador en TradingView</b> (Pine Editor → Añadir al gráfico) y configuras las alertas webhook siguiendo la guía.</span></div>
+        <div class="dstep"><span class="n">3</span><span data-i="delKs3"><b>Arrancas el bot en tu máquina o VPS</b> con tus API keys de Bybit creadas SIN permiso de retiro — ni el bot podría sacar fondos.</span></div>
+        <span class="timepill" data-i="delKsT">⏱️ Tiempo total: ~1 hora con la guía · soporte en @degenkao</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= AUDIENCIAS + COMPARATIVA ================= -->
+<section class="alt">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-kicker" data-i="audK">Para todo tipo de trader</div>
+      <h2 data-i="audH">Hecho para el degen. Respetado por el técnico.</h2>
+    </div>
+    <div class="aud">
+      <div class="aud-card reveal">
+        <h3><span>🔥</span><span data-i="aud1H">Si vienes del mundo memecoin</span></h3>
+        <div class="feat"><span class="i">✓</span><span data-i="aud1F1">Radar cada 2 min sobre boosts y perfiles recién publicados en DexScreener</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="aud1F2">Anti-rug: comunidad en X, liquidez sana, edad mínima, float no diluido</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="aud1F3">Anti-bundle: distingue compra retail orgánica de wallets infladas por bots</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="aud1F4">Snipes de $5 — pierde poco muchas veces, deja correr al ganador</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="aud1F5">Copytrade real por RPC: si tu wallet favorita compra, tú compras; si vende, tú vendes</span></div>
+      </div>
+      <div class="aud-card reveal">
+        <h3><span>🧠</span><span data-i="aud2H">Si vienes del trading clásico</span></h3>
+        <div class="feat"><span class="i">✓</span><span data-i="aud2F1">Gestión de riesgo real: stop estructural, trailing con latch, circuit breaker diario</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="aud2F2">Métricas profesionales: profit factor, expectativa por trade, max drawdown, win rate</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="aud2F3">PnL neto de TODAS las fees — la mayoría de bots te enseñan PnL bruto (mentira cómoda)</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="aud2F4">Cerebro con memoria: cada ajuste queda registrado con su porqué — auditable</span></div>
+        <div class="feat"><span class="i">✓</span><span data-i="aud2F5">KAO System: dos motores, order blocks con fuerza, ejecución Bybit con API sin retiro</span></div>
+      </div>
+    </div>
+
+    <div class="cmp-wrap reveal">
+      <table class="cmp">
+        <tr><th data-i="cmp0"></th><th class="hl">DitcoinBots</th><th data-i="cmp1">Bots típicos de Telegram</th><th data-i="cmp2">Señales VIP</th></tr>
+        <tr><td data-i="cmpR1">Demo completa gratis antes de pagar</td><td class="y">✓</td><td class="n">✗</td><td class="n">✗</td></tr>
+        <tr><td data-i="cmpR2">Corre en TU máquina (tus claves nunca salen)</td><td class="y">✓</td><td class="n" data-i="cmpNo1">✗ custodian tu wallet</td><td class="n">—</td></tr>
+        <tr><td data-i="cmpR3">Código fuente tuyo con el pago único</td><td class="y">✓</td><td class="n">✗</td><td class="n">✗</td></tr>
+        <tr><td data-i="cmpR4">PnL neto con TODAS las fees</td><td class="y">✓</td><td class="n" data-i="cmpNo2">✗ PnL bruto</td><td class="n">✗</td></tr>
+        <tr><td data-i="cmpR5">Sin comisión por trade</td><td class="y" data-i="cmpYes1">✓ 0%</td><td class="n" data-i="cmpNo3">✗ 0.5–1% por trade</td><td class="n">—</td></tr>
+        <tr><td data-i="cmpR6">Registro honesto (pérdidas incluidas)</td><td class="y">✓</td><td class="n" data-i="cmpNo4">✗ capturas selectivas</td><td class="n" data-i="cmpNo5">✗ solo aciertos</td></tr>
+        <tr><td data-i="cmpR7">Promesas de ganancias</td><td class="y" data-i="cmpYes2">Nunca — y eso es buena señal</td><td class="n" data-i="cmpNo6">"x100 garantizado"</td><td class="n" data-i="cmpNo7">"95% win rate"</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PRECIOS ================= -->
+<section id="precios">
+  <div class="wrap" style="text-align:center">
+    <div class="reveal">
+      <div class="sec-kicker" data-i="prK">Precios de lanzamiento</div>
+      <h2 data-i="prH">Empieza gratis. Paga cuando la demo te convenza.</h2>
+      <p class="lead" style="margin:0 auto" data-i="prL">Sin niveles VIP escondidos. Elige mensual (key renovable) o pago único (código fuente + guía, tuyo para siempre).</p>
+      <div class="ptoggle">
+        <span id="tgMes" class="on" data-i="tgM">Mensual</span>
+        <span id="tgUni"><span data-i="tgU">Pago único</span><span class="save" data-i="tgS">source incluido</span></span>
+      </div>
+    </div>
+    <div class="prices">
+      <div class="price-card reveal" style="text-align:left">
+        <h3>🎯 KaoMemeBot</h3>
+        <div class="price" id="pKm"><span class="old" style="display:none" id="pKmOld"></span>$20 <small data-i="perMo">/mes</small></div>
+        <div class="disc-note" id="pKmDisc" style="display:none"></div>
+        <ul id="kmList">
+          <li><b style="color:var(--green)">✓</b> <span data-i="kmP1"><b>Todo el bot desbloqueado</b> — modo real manual y automático vía Jupiter</span></li>
+          <li><b style="color:var(--green)">✓</b> <span data-i="kmP2">4 agentes + cerebro + copytrade + radar</span></li>
+          <li><b style="color:var(--green)">✓</b> <span data-i="kmP3">Topes de seguridad y alertas Telegram</span></li>
+          <li><b style="color:var(--green)">✓</b> <span data-i="kmP4">Actualizaciones mientras estés activo</span></li>
+          <li id="kmSrcLi" style="display:none"><b style="color:var(--purple)">★</b> <span data-i="kmP5"><b>Código fuente completo + guía de instalación</b> — tuyo para siempre, sin depender de nadie</span></li>
+        </ul>
+        <a class="btn primary" id="buyKm" data-i="buyKmT">Comprar KaoMemeBot — $20/mes</a>
+      </div>
+      <div class="price-card pro reveal" style="text-align:left">
+        <span class="badge-pop" data-i="prBadge">EL FAVORITO DEL TRADER TÉCNICO</span>
+        <h3>📊 KAO System</h3>
+        <div class="price" id="pKs"><span class="old" style="display:none" id="pKsOld"></span>$30 <small data-i="perMo2">/mes</small></div>
+        <div class="disc-note" id="pKsDisc" style="display:none"></div>
+        <ul>
+          <li><b style="color:var(--green)">✓</b> <span data-i="ksP1"><b>Indicador KAO DEGEN</b> (invite-only en TradingView mientras estés activo)</span></li>
+          <li><b style="color:var(--green)">✓</b> <span data-i="ksP2">Bot de ejecución Bybit con tu key personal</span></li>
+          <li><b style="color:var(--green)">✓</b> <span data-i="ksP3">Capa de riesgo completa + control remoto web</span></li>
+          <li><b style="color:var(--green)">✓</b> <span data-i="ksP4">Soporte de instalación en @degenkao</span></li>
+          <li id="ksSrcLi" style="display:none"><b style="color:var(--purple)">★</b> <span data-i="ksP5"><b>Código fuente Pine v6 + bot.py + guía</b> — lo montas tú, nadie te lo puede quitar</span></li>
+        </ul>
+        <a class="btn primary" id="buyKs" data-i="buyKsT">Comprar KAO System — $30/mes</a>
+      </div>
+    </div>
+    <p class="pay-note" data-i="payNote">
+      Pago seguro con <span class="pp">🅿️ PayPal</span> → <b>paypal.me/KaoEbooks</b>. Tras pagar, escribe a
+      <a href="https://t.me/degenkao" target="_blank">@degenkao</a> (Telegram) o <a href="https://x.com/isditcoin" target="_blank">@isditcoin</a> (X)
+      con tu recibo y recibes tu key / archivos <b>al instante</b> (máx. 24h). Cada key es personal e intransferible.
+    </p>
+  </div>
+</section>
+
+<!-- ================= NEWSLETTER ================= -->
+<section class="alt" style="padding-top:30px">
+  <div class="wrap">
+    <div class="news reveal" id="newsBox">
+      <h2 data-i="nwH">🎁 -10% al instante</h2>
+      <p data-i="nwP">Suscríbete y recibe tu código de descuento del 10% ahora mismo, más avisos de actualizaciones, nuevas estrategias de los agentes y ofertas solo para suscriptores. Cero spam.</p>
+      <div class="news-form">
+        <input type="email" id="nwEmail" placeholder="tu@email.com">
+        <button class="btn primary" id="nwBtn" data-i="nwBtn">Quiero mi -10%</button>
+      </div>
+      <div class="code-reveal" id="nwCode"><span data-i="nwOk">✅ ¡Hecho! Tu código: </span><code>DITCOIN10</code><br><span style="font-size:12px;color:var(--muted)" data-i="nwOk2">Menciónalo al pagar y te descontamos el 10% (los precios de arriba ya se han actualizado para ti).</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ + RIESGO ================= -->
+<section style="padding-top:30px">
+  <div class="wrap">
+    <div class="reveal" style="text-align:center"><h2 data-i="faqH">Preguntas frecuentes</h2></div>
+    <div class="faq reveal">
+      <details><summary data-i="q1">¿La demo es el bot de verdad o un vídeo?</summary><p data-i="a1">Es el bot completo corriendo en tu navegador con precios reales de DexScreener y ejecución simulada (impacto por liquidez + todas las fees). Lo único bloqueado es el dinero real: no puede firmar transacciones hasta que activas una key.</p></details>
+      <details><summary data-i="q2">¿Me garantiza ganancias?</summary><p data-i="a2">No — y desconfía de quien te lo prometa. Los memecoins son de lo más volátil que existe y el apalancamiento en futuros amplifica todo. DitcoinBots te da disciplina de máquina: filtros anti-rug, tamaños pequeños, stops automáticos, venta parcial y circuit breaker. La ventaja es el proceso, no la magia.</p></details>
+      <details><summary data-i="q3">¿Qué diferencia hay entre mensual y pago único?</summary><p data-i="a3">Mensual: key renovable cada mes mientras pagas (KaoMemeBot $20 · KAO $30), con updates y soporte. Pago único ($150 cada uno): recibes además el <b>código fuente completo y la guía de instalación</b> — lo montas en tu máquina y es tuyo para siempre, aunque nosotros desaparezcamos mañana.</p></details>
+      <details><summary data-i="q4">¿Cómo recibo la key o los archivos tras pagar?</summary><p data-i="a4">Pagas en paypal.me/KaoEbooks y escribes a @degenkao (Telegram) o @isditcoin (X) con el recibo. Te enviamos tu key <code>DITCOIN-…</code> y/o los archivos al instante (máximo 24h). La pegas en el bot → pestaña «Wallet / En vivo» → Licencia, y el modo real se desbloquea.</p></details>
+      <details><summary data-i="q5">¿Tienen acceso a mi dinero o a mis claves?</summary><p data-i="a5">No. Todo corre en TU máquina. En Solana: Phantom firma cada operación o usas una burner local que fondeas con poco. En Bybit: creas tus API keys SIN permiso de retiro — ni el propio bot podría sacar fondos. Nosotros nunca custodiamos nada.</p></details>
+      <details><summary data-i="q6">¿Qué necesito para instalarlo?</summary><p data-i="a6">KaoMemeBot: un navegador (Chrome/Brave) — literalmente doble clic al archivo. KAO System: cuenta de Bybit, TradingView con alertas webhook, y un PC encendido o VPS (~1 hora con la guía). Soporte por Telegram.</p></details>
+      <details><summary data-i="q7">¿Devoluciones?</summary><p data-i="a7">Mensual: cancela cuando quieras y no se te cobra más. Pago único: como el código fuente se entrega inmediatamente, no hay devoluciones — por eso la demo es gratis e ilimitada: pruébala todo lo que necesites ANTES de pagar.</p></details>
+      <details><summary data-i="q8">¿Y esto qué tiene que ver con Ditcoin, el juego?</summary><p data-i="a8">DitcoinBots nace del universo <a href="https://isditcoin.xyz" target="_blank">isditcoin.xyz</a> — nuestro juego. Misma filosofía: herramientas divertidas de usar, construidas en serio.</p></details>
+    </div>
+
+    <div class="risk reveal"><strong data-i="rk0">AVISO DE RIESGO — LÉELO DE VERDAD.</strong><br><br><span data-i="rk1">
+    Operar criptomonedas —memecoins y futuros con apalancamiento en especial— conlleva un riesgo extremo y puede suponer la pérdida total de tu capital.
+    DitcoinBots es una herramienta de software: <b>no garantiza beneficios, no elimina el riesgo y no es asesoramiento financiero</b>. Fallos de conexión,
+    del exchange o una mala configuración pueden producir pérdidas. Las gráficas de esta página son ejemplos ilustrativos de la mecánica del software con
+    sesiones demo; ningún rendimiento pasado, real o simulado, predice el futuro. Opera solo con dinero que puedas permitirte perder. El software se entrega «tal cual».</span></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="logo" style="font-size:16px">🪙 Ditcoin<b>Bots</b></div>
+      <span>·</span><a href="https://isditcoin.xyz" target="_blank" data-i="ft1">isditcoin.xyz — nuestro juego</a>
+      <span>·</span><a href="kaomemebot.html" target="_blank">Demo</a>
+      <span>·</span><a href="https://t.me/degenkao" target="_blank">Telegram @degenkao</a>
+      <span>·</span><a href="https://x.com/isditcoin" target="_blank">𝕏 @isditcoin</a>
+      <span>·</span><span class="pp">🅿️ paypal.me/KaoEbooks</span>
+    </div>
+    <p class="disclaimer" data-i="ftD">DitcoinBots © 2026 — Herramienta de software. No es asesoramiento financiero. Nunca custodiamos fondos ni claves. Al comprar confirmas haber leído la sección de riesgo.</p>
+  </div>
+</footer>
+
+<a class="fl-tg" href="https://t.me/degenkao" target="_blank" title="Telegram">✈️</a>
+
+<!-- ================= MODAL COMPRA ================= -->
+<div class="modal-bg" id="buyModal">
+  <div class="modal">
+    <span class="x" id="buyClose">×</span>
+    <h3 id="bmTitle">🔑 Comprar</h3>
+    <div class="bigprice" id="bmPrice"></div>
+    <p id="bmWhat"></p>
+    <div class="paybox"><b data-i="bm1">1 · Paga con PayPal:</b><br><a class="btn small tgb" id="bmPay" href="#" target="_blank" style="margin-top:8px">🅿️ <span data-i="bmPayT">Pagar ahora en paypal.me/KaoEbooks</span></a><br><span style="font-size:11.5px;color:var(--dim)" id="bmDiscNote"></span></div>
+    <div class="paybox"><b data-i="bm2">2 · Envíanos el recibo:</b><br><span data-i="bm2b">Telegram <a href="https://t.me/degenkao" target="_blank">@degenkao</a> · X <a href="https://x.com/isditcoin" target="_blank">@isditcoin</a> · email <code>bots@isditcoin.xyz</code></span></div>
+    <div class="paybox"><b data-i="bm3">3 · Recibe al instante:</b><br><span id="bmGet"></span></div>
+  </div>
+</div>
+
+<!-- ================= MODAL EXIT INTENT ================= -->
+<div class="modal-bg" id="exitModal">
+  <div class="modal" style="text-align:center">
+    <span class="x" id="exitClose">×</span>
+    <div style="font-size:44px">🎁</div>
+    <h3 data-i="exH">Espera — llévate un -10%</h3>
+    <p data-i="exP">Antes de irte: suscríbete y te damos ahora mismo un código del 10% de descuento para cualquiera de los dos bots. La demo seguirá siendo gratis igualmente.</p>
+    <div class="news-form" style="margin-top:14px">
+      <input type="email" id="exEmail" placeholder="tu@email.com">
+      <button class="btn primary" id="exBtn" data-i="exBtn">Dame mi código</button>
+    </div>
+    <div class="code-reveal" id="exCode"><span data-i="nwOkB">✅ Tu código: </span><code>DITCOIN10</code></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+   DitcoinBots — landing de conversión bilingüe (ES/EN)
+   · Config editable abajo (PayPal, contactos, endpoint del newsletter)
+   · i18n con data-i · detección por navegador + IP (ipapi.co) + toggle
+   · 3D canvas propio · charts animadas · exit-intent · leads locales
+   ===================================================================== */
+
+// ----------------- CONFIG (edita aquí) -----------------
+const CFG = {
+  paypal: 'https://www.paypal.me/KaoEbooks',
+  tg: 'https://t.me/degenkao',
+  formEndpoint: '',            // opcional: URL de Formspree/Getform para recibir emails
+  prices: {
+    km: { mes: 20, uni: 150 }, // KaoMemeBot
+    ks: { mes: 30, uni: 150 }, // KAO System
+  },
+  discountPct: 10,
+  discountCode: 'DITCOIN10',
+};
+
+// ----------------- I18N -----------------
+const I18N = {
+es: {
+  ob1:'🚀 <b>Precio de lanzamiento</b> — se revisa a fin de mes:', ob2:'· suscríbete abajo y llévate <b>-10%</b> con tu código',
+  nav1:'Bots', nav2:'Gráficas', nav3:'Instalación', nav4:'Precios', navCta:'Conseguir key',
+  kick:' Agentes autónomos · datos reales · corre en TU máquina, sin nube',
+  h1:'Bots que <span class="g">cazan pumps</span><br>mientras tú vives tu vida.',
+  heroSub:'<b>DitcoinBots</b> son dos armas: <b>KaoMemeBot</b> — una mesa de 4 agentes que escanea Solana en tiempo real, snipea tokens jóvenes sin bundles, copia wallets ganadoras y se recalibra sola — y <b>KAO System</b> — indicador + bot de futuros con disciplina de máquina. Pruébalo gratis. Cómpralo cuando la demo te convenza.',
+  ctaDemo:'▶ Probar la demo GRATIS', ctaPrices:'Ver precios ↓',
+  st1:'Agentes en paralelo', st2:'Chequeos por hora', st3:'Datos reales de mercado', st4:'Riesgo mín. por snipe',
+  botsK:'La suite', botsH:'Dos bots. Dos estilos. Un objetivo.', botsL:'Da igual si eres degen de memecoins o trader técnico de futuros: hay una herramienta afilada para ti — y la licencia de cada una es independiente.',
+  kmDesc:'Mesa de 4 agentes autónomos operando en paralelo, cada uno con sus propios filtros — y un cerebro que los afina cada 3 minutos hacia tus metas.',
+  kmF1:'<b>Sniper $5:</b> tokens jóvenes con flujo orgánico — detecta y evita bundles y bots por el tamaño de los tickets',
+  kmF2:'<b>Cazador de pumps:</b> volumen acelerando + compradores creciendo + comunidad verificada en X',
+  kmF3:'<b>Copytrade on-chain:</b> sigue wallets ganadoras leyendo la blockchain — copia entradas Y salidas',
+  kmF4:'<b>Venta parcial + breakeven:</b> asegura la mitad en beneficio; la posición ya no puede acabar en pérdida',
+  kmF5:'<b>Fees reales descontadas:</b> red, prioridad, rent ATA, DEX e impacto — PnL neto de verdad',
+  kmF6:'<b>Modo real vía Jupiter:</b> Phantom (firmas tú) o wallet burner (automático) con topes de gasto diarios',
+  kmCta:'Abrir demo (papel)', kmNote:'La demo es el bot completo con dinero simulado y precios reales.<br>El modo real se desbloquea con tu key.',
+  ksDesc:'Para el trader clásico: indicador KAO DEGEN en TradingView + bot de ejecución self-hosted en Bybit. Tu estrategia, ejecutada sin miedo, sin codicia y sin dormir.',
+  ksF1:'<b>Dos motores:</b> tendencia (ruptura + filtro de rango) y reversión a la media (canales Donchian)',
+  ksF2:'<b>Volumen institucional:</b> Z-score que separa actividad "ballena" del ruido y mejora la señal',
+  ksF3:'<b>Order Blocks con fuerza 0-10</b> y presión compradora/vendedora — las zonas débiles ni se dibujan',
+  ksF4:'<b>Capa de riesgo profesional:</b> stop estructural obligatorio, tamaño por riesgo fijo, freno por racha, stop diario',
+  ksF5:'<b>Protección de beneficio:</b> breakeven automático, trailing por tramos, cierre parcial que asegura',
+  ksF6:'<b>Control remoto:</b> /config /positions /stats /pause desde cualquier navegador',
+  ksCta:'Ver planes del KAO', ksNote:'Registro en vivo de resultados (ganancias Y pérdidas)<br>en Telegram <a href="https://t.me/degenkao" target="_blank">@degenkao</a> — sin capturas selectivas.',
+  chK:'Ejemplos en vivo', chH:'Así se ve el bot trabajando.', chL:'Gráficas de ejemplo con la mecánica real: curva de equity de una sesión demo y cómo la venta parcial convierte un pump en ganancia asegurada.',
+  c1H:'📈 Curva de equity — sesión demo (papel)', c1C:'Capital $100 · mesa de 4 agentes · fees reales descontadas · ejemplo ilustrativo, no promesa de rendimiento',
+  c1L1:'Equity', c1L2:'Capital inicial', c1L3:'Venta parcial (asegura)', c1L4:'Stop loss (corta rápido)',
+  c2H:'🎯 Anatomía de un snipe con venta parcial', c2C:'Entrada $5 → +42% vende la mitad → resto corre con stop en breakeven',
+  c2L1:'Precio', c2L2:'Entrada sniper', c2L3:'½ asegurada', c2L4:'Stop breakeven',
+  c3H:'⚔️ Qué hace cada agente', c3C:'Reparto de operaciones por agente en una sesión demo de 24h (ejemplo)',
+  c4H:'🧮 Fees que otros bots te esconden', c4C:'Coste real ida+vuelta de un trade de $10 en Solana — DitcoinBots lo descuenta TODO del PnL',
+  delK:'Compra única = es TUYO', delH:'Te damos el código fuente y la guía. Sin depender de nadie.',
+  delL:'La mayoría vende acceso "invite-only" que pueden quitarte mañana. Aquí, con el pago único recibes <b>el archivo fuente + guía paso a paso</b> para montarlo tú mismo en tu ordenador. Para siempre.',
+  delKm0:'instalación', delKm1:'<b>Recibes 1 archivo</b> (<code>kaomemebot.html</code>) + tu key por Telegram/email tras el pago.',
+  delKm2:'<b>Doble clic y ya está corriendo.</b> Es un solo archivo que funciona en Chrome/Brave — sin instalar nada, sin Node, sin terminal, sin nube.',
+  delKm3:'<b>Pegas tu key</b> en «Wallet / En vivo → Licencia» y el modo real queda desbloqueado. Conectas Phantom o generas una burner y a cazar.',
+  delKmT:'⏱️ Tiempo total: menos de 2 minutos',
+  delKs0:'instalación', delKs1:'<b>Recibes el código Pine v6 completo</b> del indicador + el bot de ejecución (<code>bot.py</code>) + guía paso a paso con capturas.',
+  delKs2:'<b>Pegas el indicador en TradingView</b> (Pine Editor → Añadir al gráfico) y configuras las alertas webhook siguiendo la guía.',
+  delKs3:'<b>Arrancas el bot en tu máquina o VPS</b> con tus API keys de Bybit creadas SIN permiso de retiro — ni el bot podría sacar fondos.',
+  delKsT:'⏱️ Tiempo total: ~1 hora con la guía · soporte en @degenkao',
+  audK:'Para todo tipo de trader', audH:'Hecho para el degen. Respetado por el técnico.',
+  aud1H:'Si vienes del mundo memecoin',
+  aud1F1:'Radar cada 2 min sobre boosts y perfiles recién publicados en DexScreener',
+  aud1F2:'Anti-rug: comunidad en X, liquidez sana, edad mínima, float no diluido',
+  aud1F3:'Anti-bundle: distingue compra retail orgánica de wallets infladas por bots',
+  aud1F4:'Snipes de $5 — pierde poco muchas veces, deja correr al ganador',
+  aud1F5:'Copytrade real por RPC: si tu wallet favorita compra, tú compras; si vende, tú vendes',
+  aud2H:'Si vienes del trading clásico',
+  aud2F1:'Gestión de riesgo real: stop estructural, trailing con latch, circuit breaker diario',
+  aud2F2:'Métricas profesionales: profit factor, expectativa por trade, max drawdown, win rate',
+  aud2F3:'PnL neto de TODAS las fees — la mayoría de bots te enseñan PnL bruto (mentira cómoda)',
+  aud2F4:'Cerebro con memoria: cada ajuste queda registrado con su porqué — auditable',
+  aud2F5:'KAO System: dos motores, order blocks con fuerza, ejecución Bybit con API sin retiro',
+  cmp0:'', cmp1:'Bots típicos de Telegram', cmp2:'Señales VIP',
+  cmpR1:'Demo completa gratis antes de pagar', cmpR2:'Corre en TU máquina (tus claves nunca salen)', cmpR3:'Código fuente tuyo con el pago único',
+  cmpR4:'PnL neto con TODAS las fees', cmpR5:'Sin comisión por trade', cmpR6:'Registro honesto (pérdidas incluidas)', cmpR7:'Promesas de ganancias',
+  cmpNo1:'✗ custodian tu wallet', cmpNo2:'✗ PnL bruto', cmpNo3:'✗ 0.5–1% por trade', cmpNo4:'✗ capturas selectivas', cmpNo5:'✗ solo aciertos',
+  cmpNo6:'"x100 garantizado"', cmpNo7:'"95% win rate"', cmpYes1:'✓ 0%', cmpYes2:'Nunca — y eso es buena señal',
+  prK:'Precios de lanzamiento', prH:'Empieza gratis. Paga cuando la demo te convenza.',
+  prL:'Sin niveles VIP escondidos. Elige mensual (key renovable) o pago único (código fuente + guía, tuyo para siempre).',
+  tgM:'Mensual', tgU:'Pago único', tgS:'source incluido', perMo:'/mes', perMo2:'/mes', perUni:' pago único', prBadge:'EL FAVORITO DEL TRADER TÉCNICO',
+  kmP1:'<b>Todo el bot desbloqueado</b> — modo real manual y automático vía Jupiter', kmP2:'4 agentes + cerebro + copytrade + radar',
+  kmP3:'Topes de seguridad y alertas Telegram', kmP4:'Actualizaciones mientras estés activo',
+  kmP5:'<b>Código fuente completo + guía de instalación</b> — tuyo para siempre, sin depender de nadie',
+  ksP1:'<b>Indicador KAO DEGEN</b> (invite-only en TradingView mientras estés activo)', ksP2:'Bot de ejecución Bybit con tu key personal',
+  ksP3:'Capa de riesgo completa + control remoto web', ksP4:'Soporte de instalación en @degenkao',
+  ksP5:'<b>Código fuente Pine v6 + bot.py + guía</b> — lo montas tú, nadie te lo puede quitar',
+  buyKm:'Comprar KaoMemeBot — {p}', buyKs:'Comprar KAO System — {p}',
+  payNote:'Pago seguro con <span class="pp">🅿️ PayPal</span> → <b>paypal.me/KaoEbooks</b>. Tras pagar, escribe a <a href="https://t.me/degenkao" target="_blank">@degenkao</a> (Telegram) o <a href="https://x.com/isditcoin" target="_blank">@isditcoin</a> (X) con tu recibo y recibes tu key / archivos <b>al instante</b> (máx. 24h). Cada key es personal e intransferible.',
+  nwH:'🎁 -10% al instante', nwP:'Suscríbete y recibe tu código de descuento del 10% ahora mismo, más avisos de actualizaciones, nuevas estrategias de los agentes y ofertas solo para suscriptores. Cero spam.',
+  nwBtn:'Quiero mi -10%', nwOk:'✅ ¡Hecho! Tu código: ', nwOk2:'Menciónalo al pagar y te descontamos el 10% (los precios de arriba ya se han actualizado para ti).', nwOkB:'✅ Tu código: ',
+  nwBad:'Pon un email válido 🙂',
+  faqH:'Preguntas frecuentes',
+  q1:'¿La demo es el bot de verdad o un vídeo?', a1:'Es el bot completo corriendo en tu navegador con precios reales de DexScreener y ejecución simulada (impacto por liquidez + todas las fees). Lo único bloqueado es el dinero real: no puede firmar transacciones hasta que activas una key.',
+  q2:'¿Me garantiza ganancias?', a2:'No — y desconfía de quien te lo prometa. Los memecoins son de lo más volátil que existe y el apalancamiento en futuros amplifica todo. DitcoinBots te da disciplina de máquina: filtros anti-rug, tamaños pequeños, stops automáticos, venta parcial y circuit breaker. La ventaja es el proceso, no la magia.',
+  q3:'¿Qué diferencia hay entre mensual y pago único?', a3:'Mensual: key renovable cada mes mientras pagas (KaoMemeBot $20 · KAO $30), con updates y soporte. Pago único ($150 cada uno): recibes además el <b>código fuente completo y la guía de instalación</b> — lo montas en tu máquina y es tuyo para siempre, aunque nosotros desaparezcamos mañana.',
+  q4:'¿Cómo recibo la key o los archivos tras pagar?', a4:'Pagas en paypal.me/KaoEbooks y escribes a @degenkao (Telegram) o @isditcoin (X) con el recibo. Te enviamos tu key <code>DITCOIN-…</code> y/o los archivos al instante (máximo 24h). La pegas en el bot → pestaña «Wallet / En vivo» → Licencia, y el modo real se desbloquea.',
+  q5:'¿Tienen acceso a mi dinero o a mis claves?', a5:'No. Todo corre en TU máquina. En Solana: Phantom firma cada operación o usas una burner local que fondeas con poco. En Bybit: creas tus API keys SIN permiso de retiro — ni el propio bot podría sacar fondos. Nosotros nunca custodiamos nada.',
+  q6:'¿Qué necesito para instalarlo?', a6:'KaoMemeBot: un navegador (Chrome/Brave) — literalmente doble clic al archivo. KAO System: cuenta de Bybit, TradingView con alertas webhook, y un PC encendido o VPS (~1 hora con la guía). Soporte por Telegram.',
+  q7:'¿Devoluciones?', a7:'Mensual: cancela cuando quieras y no se te cobra más. Pago único: como el código fuente se entrega inmediatamente, no hay devoluciones — por eso la demo es gratis e ilimitada: pruébala todo lo que necesites ANTES de pagar.',
+  q8:'¿Y esto qué tiene que ver con Ditcoin, el juego?', a8:'DitcoinBots nace del universo <a href="https://isditcoin.xyz" target="_blank">isditcoin.xyz</a> — nuestro juego. Misma filosofía: herramientas divertidas de usar, construidas en serio.',
+  rk0:'AVISO DE RIESGO — LÉELO DE VERDAD.',
+  rk1:'Operar criptomonedas —memecoins y futuros con apalancamiento en especial— conlleva un riesgo extremo y puede suponer la pérdida total de tu capital. DitcoinBots es una herramienta de software: <b>no garantiza beneficios, no elimina el riesgo y no es asesoramiento financiero</b>. Fallos de conexión, del exchange o una mala configuración pueden producir pérdidas. Las gráficas de esta página son ejemplos ilustrativos de la mecánica del software con sesiones demo; ningún rendimiento pasado, real o simulado, predice el futuro. Opera solo con dinero que puedas permitirte perder. El software se entrega «tal cual».',
+  ft1:'isditcoin.xyz — nuestro juego', ftD:'DitcoinBots © 2026 — Herramienta de software. No es asesoramiento financiero. Nunca custodiamos fondos ni claves. Al comprar confirmas haber leído la sección de riesgo.',
+  bm1:'1 · Paga con PayPal:', bmPayT:'Pagar ahora en paypal.me/KaoEbooks', bm2:'2 · Envíanos el recibo:',
+  bm2b:'Telegram <a href="https://t.me/degenkao" target="_blank">@degenkao</a> · X <a href="https://x.com/isditcoin" target="_blank">@isditcoin</a> · email <code>bots@isditcoin.xyz</code>',
+  bm3:'3 · Recibe al instante:',
+  bmKmMes:'Tu key mensual DITCOIN + acceso a updates y soporte. La pegas en el bot y el modo real se desbloquea.',
+  bmKmUni:'Key DE POR VIDA + el archivo completo del bot (código fuente) + guía de instalación de 2 minutos. Tuyo para siempre.',
+  bmKsMes:'Acceso invite-only al indicador en TU cuenta de TradingView + bot de ejecución con tu key mensual + soporte.',
+  bmKsUni:'Código fuente Pine v6 del indicador + bot.py + guía paso a paso con capturas. Lo montas tú y es tuyo para siempre.',
+  bmT_km:'🎯 Comprar KaoMemeBot', bmT_ks:'📊 Comprar KAO System',
+  bmMes:'/mes', bmUni:' pago único', bmDiscOn:'✅ Código {c} aplicado: pagas {p} (−10%). Escribe el código en la nota del pago.',
+  exH:'Espera — llévate un -10%', exP:'Antes de irte: suscríbete y te damos ahora mismo un código del 10% de descuento para cualquiera de los dos bots. La demo seguirá siendo gratis igualmente.', exBtn:'Dame mi código',
+  mtitle:'DitcoinBots — Bots de trading con agentes autónomos · Solana + Futuros',
+},
+en: {
+  ob1:'🚀 <b>Launch pricing</b> — reviewed at end of month:', ob2:'· subscribe below and get <b>-10%</b> with your code',
+  nav1:'Bots', nav2:'Charts', nav3:'Install', nav4:'Pricing', navCta:'Get your key',
+  kick:' Autonomous agents · real market data · runs on YOUR machine, no cloud',
+  h1:'Bots that <span class="g">hunt pumps</span><br>while you live your life.',
+  heroSub:'<b>DitcoinBots</b> is two weapons: <b>KaoMemeBot</b> — a 4-agent trading desk that scans Solana in real time, snipes young tokens without bundles, copies winning wallets and recalibrates itself — and <b>KAO System</b> — a futures indicator + bot with machine discipline. Try it free. Buy it when the demo convinces you.',
+  ctaDemo:'▶ Try the FREE demo', ctaPrices:'See pricing ↓',
+  st1:'Agents in parallel', st2:'Checks per hour', st3:'Real market data', st4:'Min. risk per snipe',
+  botsK:'The suite', botsH:'Two bots. Two styles. One goal.', botsL:'Whether you\'re a memecoin degen or a technical futures trader — there\'s a sharpened tool for you, each with its own license.',
+  kmDesc:'A desk of 4 autonomous agents running in parallel, each with its own filters — and a brain that retunes them every 3 minutes toward your goals.',
+  kmF1:'<b>$5 Sniper:</b> young tokens with organic flow — detects and avoids bundles & bots by average ticket size',
+  kmF2:'<b>Pump hunter:</b> accelerating volume + growing buyers + verified community on X',
+  kmF3:'<b>On-chain copytrade:</b> follows winning wallets by reading the blockchain — mirrors entries AND exits',
+  kmF4:'<b>Partial take-profit + breakeven:</b> banks half in profit; the position can no longer end in a loss',
+  kmF5:'<b>Real fees deducted:</b> network, priority, ATA rent, DEX and price impact — true net PnL',
+  kmF6:'<b>Real mode via Jupiter:</b> Phantom (you sign) or burner wallet (automatic) with daily spend caps',
+  kmCta:'Open the demo (paper)', kmNote:'The demo is the full bot with simulated money and real prices.<br>Real mode unlocks with your key.',
+  ksDesc:'For the classic trader: KAO DEGEN indicator on TradingView + self-hosted execution bot on Bybit. Your strategy, executed without fear, greed or sleep.',
+  ksF1:'<b>Two engines:</b> trend (breakout + range filter) and mean-reversion (Donchian channels)',
+  ksF2:'<b>Institutional volume:</b> Z-score analysis that separates whale activity from noise and upgrades signals',
+  ksF3:'<b>Order Blocks with 0-10 strength</b> and buy/sell pressure — weak zones never even draw',
+  ksF4:'<b>Professional risk layer:</b> mandatory structural stop, fixed-risk sizing, loss-streak brake, daily stop',
+  ksF5:'<b>Profit protection:</b> auto breakeven, staged trailing, partial close that banks real profit',
+  ksF6:'<b>Remote control:</b> /config /positions /stats /pause from any browser',
+  ksCta:'See KAO plans', ksNote:'Live performance log (wins AND losses)<br>on Telegram <a href="https://t.me/degenkao" target="_blank">@degenkao</a> — no cherry-picked screenshots.',
+  chK:'Live examples', chH:'This is the bot at work.', chL:'Example charts of the real mechanics: a demo session equity curve, and how the partial take-profit turns a pump into banked profit.',
+  c1H:'📈 Equity curve — demo session (paper)', c1C:'$100 capital · 4-agent desk · real fees deducted · illustrative example, not a performance promise',
+  c1L1:'Equity', c1L2:'Starting capital', c1L3:'Partial take-profit', c1L4:'Stop loss (cuts fast)',
+  c2H:'🎯 Anatomy of a snipe with partial TP', c2C:'$5 entry → +42% sells half → rest runs with breakeven stop',
+  c2L1:'Price', c2L2:'Sniper entry', c2L3:'½ banked', c2L4:'Breakeven stop',
+  c3H:'⚔️ What each agent does', c3C:'Trade split by agent in a 24h demo session (example)',
+  c4H:'🧮 Fees other bots hide from you', c4C:'True round-trip cost of a $10 trade on Solana — DitcoinBots deducts ALL of it from PnL',
+  delK:'One-time purchase = it\'s YOURS', delH:'You get the source code and the guide. Depend on no one.',
+  delL:'Most sellers rent you "invite-only" access they can revoke tomorrow. Here, the one-time purchase gets you <b>the source file + a step-by-step guide</b> to set it up on your own computer. Forever.',
+  delKm0:'install', delKm1:'<b>You receive 1 file</b> (<code>kaomemebot.html</code>) + your key via Telegram/email after payment.',
+  delKm2:'<b>Double-click and it\'s running.</b> A single file that works in Chrome/Brave — nothing to install, no Node, no terminal, no cloud.',
+  delKm3:'<b>Paste your key</b> in «Wallet / Live → License» and real mode unlocks. Connect Phantom or generate a burner and go hunting.',
+  delKmT:'⏱️ Total time: under 2 minutes',
+  delKs0:'install', delKs1:'<b>You receive the full Pine v6 source</b> of the indicator + the execution bot (<code>bot.py</code>) + a step-by-step guide with screenshots.',
+  delKs2:'<b>Paste the indicator into TradingView</b> (Pine Editor → Add to chart) and set up webhook alerts following the guide.',
+  delKs3:'<b>Run the bot on your machine or VPS</b> with Bybit API keys created WITHOUT withdrawal permission — not even the bot could move funds out.',
+  delKsT:'⏱️ Total time: ~1 hour with the guide · support at @degenkao',
+  audK:'For every kind of trader', audH:'Built for the degen. Respected by the technician.',
+  aud1H:'If you come from memecoins',
+  aud1F1:'Radar every 2 min over DexScreener boosts and freshly published profiles',
+  aud1F2:'Anti-rug: X community, healthy liquidity, minimum age, non-diluted float',
+  aud1F3:'Anti-bundle: separates organic retail buying from bot-inflated wallets',
+  aud1F4:'$5 snipes — lose small many times, let the winner run',
+  aud1F5:'Real RPC copytrade: your favorite wallet buys, you buy; it sells, you sell',
+  aud2H:'If you come from classic trading',
+  aud2F1:'Real risk management: structural stop, latched trailing, daily circuit breaker',
+  aud2F2:'Professional metrics: profit factor, expectancy per trade, max drawdown, win rate',
+  aud2F3:'PnL net of ALL fees — most bots show you gross PnL (a comfortable lie)',
+  aud2F4:'A brain with memory: every adjustment logged with its reason — auditable',
+  aud2F5:'KAO System: two engines, strength-rated order blocks, Bybit execution with no-withdrawal API',
+  cmp0:'', cmp1:'Typical Telegram bots', cmp2:'VIP signals',
+  cmpR1:'Full free demo before paying', cmpR2:'Runs on YOUR machine (keys never leave)', cmpR3:'Source code is yours with one-time purchase',
+  cmpR4:'PnL net of ALL fees', cmpR5:'No per-trade commission', cmpR6:'Honest track record (losses included)', cmpR7:'Profit promises',
+  cmpNo1:'✗ they custody your wallet', cmpNo2:'✗ gross PnL', cmpNo3:'✗ 0.5–1% per trade', cmpNo4:'✗ cherry-picked shots', cmpNo5:'✗ wins only',
+  cmpNo6:'"guaranteed 100x"', cmpNo7:'"95% win rate"', cmpYes1:'✓ 0%', cmpYes2:'Never — and that\'s a good sign',
+  prK:'Launch pricing', prH:'Start free. Pay when the demo convinces you.',
+  prL:'No hidden VIP tiers. Choose monthly (renewable key) or one-time (source code + guide, yours forever).',
+  tgM:'Monthly', tgU:'One-time', tgS:'source included', perMo:'/mo', perMo2:'/mo', perUni:' one-time', prBadge:'THE TECHNICAL TRADER\'S FAVORITE',
+  kmP1:'<b>Full bot unlocked</b> — manual & automatic real mode via Jupiter', kmP2:'4 agents + brain + copytrade + radar',
+  kmP3:'Safety caps and Telegram alerts', kmP4:'Updates while you\'re active',
+  kmP5:'<b>Full source code + install guide</b> — yours forever, depend on no one',
+  ksP1:'<b>KAO DEGEN indicator</b> (invite-only on TradingView while active)', ksP2:'Bybit execution bot with your personal key',
+  ksP3:'Full risk layer + web remote control', ksP4:'Install support at @degenkao',
+  ksP5:'<b>Pine v6 source + bot.py + guide</b> — you set it up, no one can take it away',
+  buyKm:'Buy KaoMemeBot — {p}', buyKs:'Buy KAO System — {p}',
+  payNote:'Secure payment with <span class="pp">🅿️ PayPal</span> → <b>paypal.me/KaoEbooks</b>. After paying, message <a href="https://t.me/degenkao" target="_blank">@degenkao</a> (Telegram) or <a href="https://x.com/isditcoin" target="_blank">@isditcoin</a> (X) with your receipt and get your key / files <b>instantly</b> (max 24h). Every key is personal and non-transferable.',
+  nwH:'🎁 Instant -10%', nwP:'Subscribe and get your 10% discount code right now, plus update alerts, new agent strategies and subscriber-only deals. Zero spam.',
+  nwBtn:'Get my -10%', nwOk:'✅ Done! Your code: ', nwOk2:'Mention it when paying and we\'ll take 10% off (the prices above just updated for you).', nwOkB:'✅ Your code: ',
+  nwBad:'Enter a valid email 🙂',
+  faqH:'Frequently asked questions',
+  q1:'Is the demo the real bot or a video?', a1:'It\'s the full bot running in your browser with real DexScreener prices and simulated execution (liquidity impact + all fees). The only thing locked is real money: it cannot sign transactions until you activate a key.',
+  q2:'Does it guarantee profits?', a2:'No — and distrust anyone who promises that. Memecoins are among the most volatile assets in existence, and futures leverage amplifies everything. DitcoinBots gives you machine discipline: anti-rug filters, small sizes, automatic stops, partial take-profit and a circuit breaker. The edge is the process, not magic.',
+  q3:'What\'s the difference between monthly and one-time?', a3:'Monthly: a renewable key each month while you pay (KaoMemeBot $20 · KAO $30), with updates and support. One-time ($150 each): you additionally receive the <b>full source code and install guide</b> — you set it up on your machine and it\'s yours forever, even if we vanished tomorrow.',
+  q4:'How do I receive the key or files after paying?', a4:'Pay at paypal.me/KaoEbooks and message @degenkao (Telegram) or @isditcoin (X) with the receipt. We send your <code>DITCOIN-…</code> key and/or the files instantly (24h max). Paste it in the bot → «Wallet / Live» tab → License, and real mode unlocks.',
+  q5:'Do you have access to my money or keys?', a5:'No. Everything runs on YOUR machine. On Solana: Phantom signs each trade, or you use a small local burner. On Bybit: you create API keys WITHOUT withdrawal permission — not even the bot itself could move funds out. We never custody anything.',
+  q6:'What do I need to install it?', a6:'KaoMemeBot: a browser (Chrome/Brave) — literally double-click the file. KAO System: a Bybit account, TradingView with webhook alerts, and an always-on PC or VPS (~1 hour with the guide). Telegram support included.',
+  q7:'Refunds?', a7:'Monthly: cancel anytime, no future charges. One-time: since the source code is delivered immediately, there are no refunds — that\'s why the demo is free and unlimited: test it as long as you need BEFORE paying.',
+  q8:'What does this have to do with Ditcoin, the game?', a8:'DitcoinBots comes from the <a href="https://isditcoin.xyz" target="_blank">isditcoin.xyz</a> universe — our game. Same philosophy: tools that are fun to use, built seriously.',
+  rk0:'RISK WARNING — ACTUALLY READ THIS.',
+  rk1:'Trading cryptocurrencies — memecoins and leveraged futures especially — carries extreme risk and can result in the total loss of your capital. DitcoinBots is a software tool: <b>it does not guarantee profits, does not remove risk, and is not financial advice</b>. Connection failures, exchange issues or misconfiguration can produce losses. The charts on this page are illustrative examples of the software\'s mechanics using demo sessions; no past performance, real or simulated, predicts the future. Trade only with money you can afford to lose. Software is provided "as-is".',
+  ft1:'isditcoin.xyz — our game', ftD:'DitcoinBots © 2026 — Software tool. Not financial advice. We never custody funds or keys. By purchasing you confirm you\'ve read the risk section.',
+  bm1:'1 · Pay with PayPal:', bmPayT:'Pay now at paypal.me/KaoEbooks', bm2:'2 · Send us the receipt:',
+  bm2b:'Telegram <a href="https://t.me/degenkao" target="_blank">@degenkao</a> · X <a href="https://x.com/isditcoin" target="_blank">@isditcoin</a> · email <code>bots@isditcoin.xyz</code>',
+  bm3:'3 · Receive instantly:',
+  bmKmMes:'Your monthly DITCOIN key + updates and support. Paste it in the bot and real mode unlocks.',
+  bmKmUni:'LIFETIME key + the complete bot file (source code) + 2-minute install guide. Yours forever.',
+  bmKsMes:'Invite-only indicator access on YOUR TradingView account + execution bot with your monthly key + support.',
+  bmKsUni:'Pine v6 indicator source + bot.py + step-by-step guide with screenshots. You set it up and it\'s yours forever.',
+  bmT_km:'🎯 Buy KaoMemeBot', bmT_ks:'📊 Buy KAO System',
+  bmMes:'/mo', bmUni:' one-time', bmDiscOn:'✅ Code {c} applied: you pay {p} (−10%). Write the code in the payment note.',
+  exH:'Wait — grab a -10%', exP:'Before you go: subscribe and we\'ll give you a 10% discount code for either bot right now. The demo stays free either way.', exBtn:'Get my code',
+  mtitle:'DitcoinBots — Trading bots with autonomous agents · Solana + Futures',
+},
+};
+
+let L = 'es';
+function t(k){ return (I18N[L] && I18N[L][k]) !== undefined ? I18N[L][k] : (I18N.es[k] || ''); }
+function applyLang(){
+  document.documentElement.lang = L;
+  document.title = t('mtitle');
+  document.querySelectorAll('[data-i]').forEach(el => { const v = t(el.dataset.i); if (v !== '') el.innerHTML = v; });
+  document.getElementById('langEs').classList.toggle('on', L === 'es');
+  document.getElementById('langEn').classList.toggle('on', L === 'en');
+  renderPrices();
+  redrawCharts();
+}
+function setLang(l, savePref = true){ L = l; if (savePref) localStorage.setItem('db_lang', l); applyLang(); }
+document.getElementById('langEs').onclick = () => setLang('es');
+document.getElementById('langEn').onclick = () => setLang('en');
+
+// detección: preferencia guardada > idioma del navegador; refinamiento por IP (best-effort)
+(function initLang(){
+  const saved = localStorage.getItem('db_lang');
+  if (saved) { L = saved; return; }
+  L = (navigator.language || 'en').toLowerCase().startsWith('es') ? 'es' : 'en';
+  fetch('https://ipapi.co/json/').then(r => r.json()).then(d => {
+    if (localStorage.getItem('db_lang')) return; // el usuario ya eligió
+    const hisp = ['ES','MX','AR','CO','PE','VE','CL','EC','GT','CU','BO','DO','HN','PY','SV','NI','CR','PA','UY','PR'];
+    const want = hisp.includes(d.country_code) ? 'es' : 'en';
+    if (want !== L) setLang(want, false);
+  }).catch(() => {});
+})();
+
+// ----------------- PRECIOS + DESCUENTO -----------------
+let plan = 'mes'; // mes | uni
+const hasDisc = () => localStorage.getItem('db_sub') === '1';
+const disc = p => Math.round(p * (100 - CFG.discountPct) / 100);
+function priceOf(prod){ const base = CFG.prices[prod][plan]; return hasDisc() ? disc(base) : base; }
+function priceLabel(prod){ return '$' + priceOf(prod) + (plan === 'mes' ? t('bmMes') : t('bmUni')); }
+
+function renderPrices(){
+  document.getElementById('tgMes').classList.toggle('on', plan === 'mes');
+  document.getElementById('tgUni').classList.toggle('on', plan === 'uni');
+  for (const prod of ['km','ks']) {
+    const base = CFG.prices[prod][plan];
+    const final = priceOf(prod);
+    const priceEl = document.getElementById(prod === 'km' ? 'pKm' : 'pKs');
+    const per = plan === 'mes' ? `<small>${t('bmMes')}</small>` : `<small>${t('perUni')}</small>`;
+    priceEl.innerHTML = (hasDisc() ? `<span class="old">$${base}</span>` : '') + `$${final} ` + per;
+    const dn = document.getElementById(prod === 'km' ? 'pKmDisc' : 'pKsDisc');
+    dn.style.display = hasDisc() ? 'block' : 'none';
+    dn.textContent = hasDisc() ? `★ ${CFG.discountCode} −${CFG.discountPct}%` : '';
+    document.getElementById(prod === 'km' ? 'kmSrcLi' : 'ksSrcLi').style.display = plan === 'uni' ? 'flex' : 'none';
+    const btn = document.getElementById(prod === 'km' ? 'buyKm' : 'buyKs');
+    btn.innerHTML = t(prod === 'km' ? 'buyKm' : 'buyKs').replace('{p}', priceLabel(prod));
+  }
+}
+document.getElementById('tgMes').onclick = () => { plan = 'mes'; renderPrices(); };
+document.getElementById('tgUni').onclick = () => { plan = 'uni'; renderPrices(); };
+
+// ----------------- MODAL DE COMPRA -----------------
+const buyModal = document.getElementById('buyModal');
+function openBuy(prod){
+  const p = priceOf(prod);
+  document.getElementById('bmTitle').textContent = t(prod === 'km' ? 'bmT_km' : 'bmT_ks');
+  document.getElementById('bmPrice').textContent = priceLabel(prod);
+  document.getElementById('bmWhat').innerHTML = t(prod === 'km' ? (plan === 'mes' ? 'bmKmMes' : 'bmKmUni') : (plan === 'mes' ? 'bmKsMes' : 'bmKsUni'));
+  document.getElementById('bmGet').innerHTML = t(prod === 'km' ? (plan === 'mes' ? 'bmKmMes' : 'bmKmUni') : (plan === 'mes' ? 'bmKsMes' : 'bmKsUni'));
+  document.getElementById('bmPay').href = `${CFG.paypal}/${p}`;
+  document.getElementById('bmDiscNote').innerHTML = hasDisc() ? t('bmDiscOn').replace('{c}', CFG.discountCode).replace('{p}', '$' + p) : '';
+  buyModal.classList.add('open');
+}
+document.getElementById('buyKm').onclick = () => openBuy('km');
+document.getElementById('buyKs').onclick = () => openBuy('ks');
+document.getElementById('buyClose').onclick = () => buyModal.classList.remove('open');
+buyModal.addEventListener('click', e => { if (e.target === buyModal) buyModal.classList.remove('open'); });
+
+// ----------------- NEWSLETTER / LEADS -----------------
+function saveLead(email, src){
+  const leads = JSON.parse(localStorage.getItem('db_leads') || '[]');
+  if (!leads.some(l => l.email === email)) leads.push({ email, src, ts: Date.now(), lang: L });
+  localStorage.setItem('db_leads', JSON.stringify(leads));
+  if (CFG.formEndpoint) fetch(CFG.formEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, src, lang: L }) }).catch(() => {});
+}
+function subscribe(inputId, codeId, src){
+  const el = document.getElementById(inputId);
+  const email = el.value.trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert(t('nwBad')); return; }
+  saveLead(email, src);
+  localStorage.setItem('db_sub', '1');
+  document.getElementById(codeId).style.display = 'block';
+  renderPrices();
+}
+document.getElementById('nwBtn').onclick = () => subscribe('nwEmail', 'nwCode', 'newsletter');
+document.getElementById('exBtn').onclick = () => subscribe('exEmail', 'exCode', 'exit-intent');
+
+// export de leads (privado): 5 clics en el logo descarga CSV
+let logoClicks = 0;
+document.getElementById('logoBtn').addEventListener('click', () => {
+  if (++logoClicks < 5) return;
+  logoClicks = 0;
+  const leads = JSON.parse(localStorage.getItem('db_leads') || '[]');
+  const csv = 'email,fuente,fecha,idioma\n' + leads.map(l => `${l.email},${l.src},${new Date(l.ts).toISOString()},${l.lang}`).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = 'ditcoinbots-leads.csv'; a.click();
+});
+
+// ----------------- EXIT INTENT (una vez por sesión, escritorio) -----------------
+const exitModal = document.getElementById('exitModal');
+document.getElementById('exitClose').onclick = () => exitModal.classList.remove('open');
+exitModal.addEventListener('click', e => { if (e.target === exitModal) exitModal.classList.remove('open'); });
+document.addEventListener('mouseout', e => {
+  if (e.clientY > 8 || e.relatedTarget || sessionStorage.getItem('db_exit') || hasDisc()) return;
+  sessionStorage.setItem('db_exit', '1');
+  exitModal.classList.add('open');
+});
+
+// ----------------- COUNTDOWN (fin de mes, real) -----------------
+(function cd(){
+  const el = document.getElementById('countdown');
+  const end = new Date(); end.setMonth(end.getMonth() + 1, 1); end.setHours(0, 0, 0, 0);
+  setInterval(() => {
+    let s = Math.max(0, (end - Date.now()) / 1000 | 0);
+    const d = s / 86400 | 0; s %= 86400;
+    const h = s / 3600 | 0; s %= 3600;
+    const m = s / 60 | 0; s %= 60;
+    el.textContent = `${d}d ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }, 1000);
+})();
+
+// ----------------- HERO 3D (canvas propio) -----------------
+(() => {
+  const cv = document.getElementById('hero3d');
+  const ctx = cv.getContext('2d');
+  let W, H, dpr;
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize(); window.addEventListener('resize', resize);
+  const P = [];
+  const R = 150;
+  for (let i = 0; i < 700; i++) {
+    const r = R * Math.sqrt(Math.random());
+    const a = Math.random() * Math.PI * 2;
+    const face = Math.random() < 0.5 ? -1 : 1;
+    P.push({ x: r * Math.cos(a), y: r * Math.sin(a), z: face * 14 * (0.6 + Math.random() * 0.4), c: 'coin' });
+  }
+  for (let i = 0; i < 260; i++) {
+    const a = Math.random() * Math.PI * 2;
+    P.push({ x: R * Math.cos(a), y: R * Math.sin(a), z: (Math.random() * 2 - 1) * 14, c: 'rim' });
+  }
+  const D = [];
+  for (let tt = 0; tt <= 1; tt += 0.02) D.push([-40, -70 + 140 * tt]);
+  for (let tt = 0; tt <= 1; tt += 0.02) { const a = -Math.PI / 2 + Math.PI * tt; D.push([-40 + 60 * Math.cos(a), 66 * Math.sin(a)]); }
+  for (let tt = 0; tt <= 1; tt += 0.05) { D.push([-62 + 44 * tt, -18]); D.push([-62 + 44 * tt, 18]); }
+  for (const [x, y] of D) P.push({ x, y, z: -18, c: 'sym' });
+  const CANDLES = [];
+  for (let i = 0; i < 16; i++) CANDLES.push({ a: i / 16 * Math.PI * 2, up: Math.random() < 0.62, h: 26 + Math.random() * 34, w: 7 + Math.random() * 3, wick: 8 + Math.random() * 14 });
+  let mx = 0, my = 0;
+  window.addEventListener('mousemove', e => { mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5; });
+  const FOV = 520;
+  function frame(now){
+    const tsec = now / 1000;
+    ctx.clearRect(0, 0, W, H);
+    const cx = W * (W > 900 ? 0.72 : 0.5), cy = H * 0.44;
+    const rotY = tsec * 0.55 + mx * 1.1, rotX = 0.42 + my * 0.55;
+    const cy1 = Math.cos(rotY), sy1 = Math.sin(rotY), cx1 = Math.cos(rotX), sx1 = Math.sin(rotX);
+    const draw = [];
+    for (const c of CANDLES) {
+      const ang = c.a + tsec * 0.22, orbR = 268;
+      let x = orbR * Math.cos(ang), z = orbR * Math.sin(ang), y = Math.sin(ang * 2 + tsec) * 26;
+      let X1 = x * cy1 + z * sy1, Z1 = -x * sy1 + z * cy1;
+      let Y1 = y * cx1 - Z1 * sx1, Z2 = y * sx1 + Z1 * cx1;
+      draw.push({ z: Z2, kind: 'candle', x: X1, y: Y1, c });
+    }
+    for (const p of P) {
+      let X1 = p.x * cy1 + p.z * sy1, Z1 = -p.x * sy1 + p.z * cy1;
+      let Y1 = p.y * cx1 - Z1 * sx1, Z2 = p.y * sx1 + Z1 * cx1;
+      draw.push({ z: Z2, kind: p.c, x: X1, y: Y1 });
+    }
+    draw.sort((a, b) => b.z - a.z);
+    for (const d of draw) {
+      const s = FOV / (FOV + d.z), sx = cx + d.x * s, sy = cy + d.y * s;
+      const alpha = Math.max(0.06, Math.min(1, (s - 0.55) * 2.2));
+      if (d.kind === 'candle') {
+        const c = d.c, col = c.up ? '34,197,94' : '239,68,68';
+        const h = c.h * s, w = c.w * s, wick = c.wick * s;
+        ctx.strokeStyle = `rgba(${col},${alpha * 0.85})`; ctx.lineWidth = Math.max(1, 1.4 * s);
+        ctx.beginPath(); ctx.moveTo(sx, sy - h / 2 - wick); ctx.lineTo(sx, sy + h / 2 + wick); ctx.stroke();
+        ctx.fillStyle = `rgba(${col},${alpha * 0.9})`;
+        ctx.shadowColor = `rgba(${col},.9)`; ctx.shadowBlur = 12 * s;
+        ctx.fillRect(sx - w / 2, sy - h / 2, w, h);
+        ctx.shadowBlur = 0;
+      } else {
+        const size = (d.kind === 'sym' ? 2.1 : d.kind === 'rim' ? 1.7 : 1.25) * s;
+        ctx.fillStyle = d.kind === 'sym' ? `rgba(240,255,246,${alpha})` : d.kind === 'rim' ? `rgba(74,222,128,${alpha * 0.95})` : `rgba(34,197,94,${alpha * 0.55})`;
+        if (d.kind === 'sym') { ctx.shadowColor = 'rgba(74,222,128,.9)'; ctx.shadowBlur = 8; }
+        ctx.beginPath(); ctx.arc(sx, sy, size, 0, 7); ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+// ----------------- MARQUEE -----------------
+(() => {
+  const items = [['BONK',2.4],['WIF',-1.1],['FARTCOIN',6.8],['PENGU',0.9],['POPCAT',-2.3],['TRUMP',1.2],['GOAT',12.4],['AI16Z',-3.5],['MEW',0.4],['PNUT',4.1],['SLERF',-0.8],['BOME',1.7],['ZEREBRO',8.2],['WEN',-1.9]];
+  const html = items.map(([s,v]) => `&nbsp;&nbsp;&nbsp;${s} <b class="${v<0?'r':''}">${v>0?'+':''}${v}%</b>&nbsp;&nbsp;&nbsp;·`).join('');
+  document.getElementById('mq').innerHTML = html + html;
+})();
+
+// ----------------- REVEALS + CONTADORES + TILT -----------------
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } }), { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+(() => {
+  const io2 = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    const el = e.target; io2.unobserve(el);
+    if (el.dataset.fixed) { el.textContent = el.dataset.fixed; return; }
+    const target = +el.dataset.count, suf = el.dataset.suffix || '';
+    const t0 = performance.now();
+    (function step(now){ const p = Math.min(1, (now - t0) / 1200); el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))) + suf; if (p < 1) requestAnimationFrame(step); })(t0);
+  }), { threshold: 0.6 });
+  document.querySelectorAll('[data-count],[data-fixed]').forEach(el => io2.observe(el));
+})();
+document.querySelectorAll('.tilt').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    card.style.transform = `rotateY(${((e.clientX - r.left) / r.width - .5) * 10}deg) rotateX(${-((e.clientY - r.top) / r.height - .5) * 8}deg) translateZ(6px)`;
+  });
+  card.addEventListener('mouseleave', () => card.style.transform = '');
+});
+
+// ----------------- CHARTS (re-dibujables al cambiar idioma) -----------------
+const drawnCharts = new Set();
+const chartFns = {};
+function setupCanvas(id, h){
+  const cv = document.getElementById(id);
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = cv.clientWidth || 500;
+  cv.width = w * dpr; cv.height = h * dpr;
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w, h };
+}
+function chart(id, fn){
+  chartFns[id] = fn;
+  const el = document.getElementById(id);
+  const o = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { o.unobserve(el); drawnCharts.add(id); fn(); } }), { threshold: 0.35 });
+  o.observe(el);
+}
+function redrawCharts(){ drawnCharts.forEach(id => chartFns[id] && chartFns[id](true)); }
+
+chart('chEquity', (instant) => {
+  const { ctx, w, h } = setupCanvas('chEquity', 260);
+  const data = [100,100.2,99.6,99.9,100.8,101.5,101.1,102.6,103.9,103.2,102.4,103.8,105.6,105.1,106.9,106.2,105.4,107.3,109.1,108.4,110.2,109.6,111.8,113.5,112.6,111.9,113.2,115.4,114.8,116.9,118.2,117.5,119.8,121.4];
+  const events = { 8:'p', 13:'p', 16:'s', 22:'p', 26:'s', 30:'p' };
+  const min = 97, max = 124;
+  const X = i => 14 + i / (data.length - 1) * (w - 28);
+  const Y = v => h - 26 - (v - min) / (max - min) * (h - 46);
+  const t0 = performance.now();
+  (function draw(now){
+    const p = instant ? 1 : Math.min(1, (now - t0) / 1900);
+    const n = Math.max(2, Math.floor(data.length * p));
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = '#3f3f46'; ctx.setLineDash([5,5]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(14, Y(100)); ctx.lineTo(w - 14, Y(100)); ctx.stroke(); ctx.setLineDash([]);
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, 'rgba(34,197,94,.30)'); grad.addColorStop(1, 'rgba(34,197,94,0)');
+    ctx.beginPath(); ctx.moveTo(X(0), Y(data[0]));
+    for (let i = 1; i < n; i++) ctx.lineTo(X(i), Y(data[i]));
+    ctx.lineTo(X(n - 1), h - 26); ctx.lineTo(X(0), h - 26); ctx.closePath();
+    ctx.fillStyle = grad; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(X(0), Y(data[0]));
+    for (let i = 1; i < n; i++) ctx.lineTo(X(i), Y(data[i]));
+    ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 2.4; ctx.shadowColor = 'rgba(34,197,94,.7)'; ctx.shadowBlur = 10;
+    ctx.stroke(); ctx.shadowBlur = 0;
+    for (let i = 0; i < n; i++) {
+      if (!events[i]) continue;
+      ctx.fillStyle = events[i] === 'p' ? '#a78bfa' : '#ef4444';
+      ctx.beginPath(); ctx.arc(X(i), Y(data[i]), 4.5, 0, 7); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(events[i] === 'p' ? '½' : 'SL', X(i), Y(data[i]) - 9);
+    }
+    ctx.fillStyle = '#8f8f9a'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('$100', 14, Y(100) - 6);
+    if (p >= 1) {
+      const last = data[data.length - 1];
+      ctx.fillStyle = '#22c55e'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText('$' + last.toFixed(1) + '  (+' + (last - 100).toFixed(1) + '%)', w - 14, Y(last) - 10);
+    }
+    if (p < 1) requestAnimationFrame(draw);
+  })(t0);
+});
+
+chart('chCandle', (instant) => {
+  const { ctx, w, h } = setupCanvas('chCandle', 260);
+  const seed = [1,1.03,0.99,1.06,1.12,1.09,1.18,1.26,1.22,1.34,1.42,1.38,1.31,1.36,1.45,1.52,1.44,1.39,1.35,1.41];
+  const candles = seed.map((v,i) => { const o = i ? seed[i-1] : 1; return { o, c: v, hi: Math.max(o,v) * 1.025, lo: Math.min(o,v) * 0.975 }; });
+  const entryI = 3, scaleI = 10, beY = 1.06;
+  const min = 0.92, max = 1.62;
+  const X = i => 20 + i / (candles.length - 1) * (w - 40);
+  const Y = v => h - 24 - (v - min) / (max - min) * (h - 44);
+  const cw = (w - 40) / candles.length * 0.55;
+  const lbl = { es: ['stop en breakeven','entrada $5','+42% → vende ½'], en: ['breakeven stop','$5 entry','+42% → sell ½'] }[L];
+  const t0 = performance.now();
+  (function draw(now){
+    const p = instant ? 1 : Math.min(1, (now - t0) / 1900);
+    const n = Math.max(1, Math.floor(candles.length * p));
+    ctx.clearRect(0, 0, w, h);
+    if (n > scaleI) {
+      ctx.strokeStyle = 'rgba(34,211,238,.8)'; ctx.setLineDash([4,4]); ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(X(scaleI), Y(beY)); ctx.lineTo(w - 20, Y(beY)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = '#22d3ee'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(lbl[0], w - 20, Y(beY) - 6);
+    }
+    for (let i = 0; i < n; i++) {
+      const c = candles[i], up = c.c >= c.o, col = up ? '#22c55e' : '#ef4444';
+      ctx.strokeStyle = col; ctx.lineWidth = 1.3;
+      ctx.beginPath(); ctx.moveTo(X(i), Y(c.hi)); ctx.lineTo(X(i), Y(c.lo)); ctx.stroke();
+      ctx.fillStyle = col;
+      const top = Y(Math.max(c.o, c.c)), bot = Y(Math.min(c.o, c.c));
+      ctx.fillRect(X(i) - cw / 2, top, cw, Math.max(2, bot - top));
+    }
+    if (n > entryI) {
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath(); ctx.moveTo(X(entryI), Y(candles[entryI].lo) + 16); ctx.lineTo(X(entryI) - 6, Y(candles[entryI].lo) + 26); ctx.lineTo(X(entryI) + 6, Y(candles[entryI].lo) + 26); ctx.closePath(); ctx.fill();
+      ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(lbl[1], X(entryI), Y(candles[entryI].lo) + 38);
+    }
+    if (n > scaleI) {
+      ctx.fillStyle = '#a78bfa';
+      ctx.beginPath(); ctx.arc(X(scaleI), Y(candles[scaleI].hi) - 8, 5, 0, 7); ctx.fill();
+      ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(lbl[2], X(scaleI), Y(candles[scaleI].hi) - 20);
+    }
+    if (p < 1) requestAnimationFrame(draw);
+  })(t0);
+});
+
+chart('chAgents', (instant) => {
+  const { ctx, w, h } = setupCanvas('chAgents', 230);
+  const rows = [['🎯 Sniper',14,'#f472b6'],[L==='es'?'🔭 Cazador':'🔭 Hunter',9,'#22c55e'],['👤 Copy',5,'#22d3ee'],['📈 Core',3,'#a78bfa']];
+  const foot = L === 'es' ? 'El sniper dispara más porque arriesga poco por trade; el cerebro reparte el flujo.' : 'The sniper fires most because it risks little per trade; the brain balances the flow.';
+  const opsW = L === 'es' ? ' ops' : ' trades';
+  const t0 = performance.now();
+  (function draw(now){
+    const p = instant ? 1 : Math.min(1, (now - t0) / 1200);
+    const e = 1 - Math.pow(1 - p, 3);
+    ctx.clearRect(0, 0, w, h);
+    rows.forEach((r, i) => {
+      const y = 24 + i * 50;
+      ctx.fillStyle = '#c9c9d2'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText(r[0], 0, y + 4);
+      const bw = (w - 160) * (r[1] / 16) * e;
+      const grad = ctx.createLinearGradient(96, 0, 96 + bw, 0);
+      grad.addColorStop(0, r[2] + '55'); grad.addColorStop(1, r[2]);
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.roundRect(96, y - 10, Math.max(4, bw), 22, 6); ctx.fill();
+      ctx.fillStyle = '#e8e8ec';
+      ctx.fillText(Math.round(r[1] * e) + opsW, 104 + bw, y + 4);
+    });
+    ctx.fillStyle = '#5a5a66'; ctx.font = '10.5px sans-serif';
+    ctx.fillText(foot, 0, h - 6);
+    if (p < 1) requestAnimationFrame(draw);
+  })(t0);
+});
+
+chart('chFees', (instant) => {
+  const { ctx, w, h } = setupCanvas('chFees', 230);
+  const parts = L === 'es'
+    ? [['Impacto de precio',0.09,'#ef4444'],['Fee DEX 0.25%×2',0.05,'#f59e0b'],['Rent ATA (1ª compra)',0.17,'#a78bfa'],['Prioridad ×2',0.08,'#22d3ee'],['Red ×2',0.001,'#8f8f9a']]
+    : [['Price impact',0.09,'#ef4444'],['DEX fee 0.25%×2',0.05,'#f59e0b'],['ATA rent (1st buy)',0.17,'#a78bfa'],['Priority ×2',0.08,'#22d3ee'],['Network ×2',0.001,'#8f8f9a']];
+  const total = parts.reduce((s,p) => s + p[1], 0);
+  const head = L === 'es' ? `Total: ~$${total.toFixed(2)} en un trade de $10 (${(total/10*100).toFixed(1)}%)` : `Total: ~$${total.toFixed(2)} on a $10 trade (${(total/10*100).toFixed(1)}%)`;
+  const foot = L === 'es' ? 'Por eso la guardia de fees descarta trades donde el coste > 10% del tamaño.' : 'That\'s why the fee guard rejects trades where cost > 10% of size.';
+  const t0 = performance.now();
+  (function draw(now){
+    const p = instant ? 1 : Math.min(1, (now - t0) / 1300);
+    const e = 1 - Math.pow(1 - p, 3);
+    ctx.clearRect(0, 0, w, h);
+    let x = 0; const y = 26, bh = 34;
+    parts.forEach(pt => { const seg = w * (pt[1] / total) * e; ctx.fillStyle = pt[2]; ctx.fillRect(x, y, seg, bh); x += seg; });
+    ctx.strokeStyle = '#26262e'; ctx.strokeRect(0, y, w * e, bh);
+    ctx.fillStyle = '#e8e8ec'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(head, 0, 16);
+    let ly = y + bh + 22;
+    parts.forEach(pt => {
+      ctx.fillStyle = pt[2]; ctx.fillRect(0, ly - 9, 10, 10);
+      ctx.fillStyle = '#c9c9d2'; ctx.font = '12px sans-serif';
+      ctx.fillText(`${pt[0]} — $${pt[1].toFixed(2)}`, 18, ly);
+      ly += 21;
+    });
+    ctx.fillStyle = '#5a5a66'; ctx.font = '10.5px sans-serif';
+    ctx.fillText(foot, 0, h - 6);
+    if (p < 1) requestAnimationFrame(draw);
+  })(t0);
+});
+
+// aplicar idioma inicial
+applyLang();
+</script>
+</body>
+</html>

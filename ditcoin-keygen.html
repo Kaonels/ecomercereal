@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔐 DitcoinBots — Generador de keys (PRIVADO)</title>
+<style>
+  body{background:#09090b;color:#e4e4e7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:720px;margin:0 auto;padding:40px 20px}
+  h1{font-size:22px;margin-bottom:6px}
+  .warn{background:rgba(127,29,29,.25);border:1px solid #7f1d1d;color:#fca5a5;border-radius:10px;padding:12px 16px;font-size:13px;margin:14px 0 24px;line-height:1.6}
+  .card{background:#111114;border:1px solid #26262b;border-radius:12px;padding:20px;margin-bottom:16px}
+  label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+  select,input{background:#09090b;border:1px solid #26262b;color:#e4e4e7;border-radius:8px;padding:9px 12px;font-size:14px;margin-right:10px}
+  button{cursor:pointer;background:#22c55e;border:none;color:#052e16;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:800}
+  button.ghost{background:transparent;border:1px solid #26262b;color:#e4e4e7}
+  .keys{font-family:ui-monospace,Menlo,monospace;font-size:15px;line-height:2.2;margin-top:14px}
+  .keys div{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1c1c20;padding:4px 0}
+  .keys b{color:#4ade80;letter-spacing:1px}
+  .copy{font-size:11px;background:#1c1c22;border:1px solid #26262b;color:#a1a1aa;border-radius:6px;padding:4px 10px;cursor:pointer}
+  .muted{color:#8b8b94;font-size:12.5px;line-height:1.6}
+  .row{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<h1>🔐 Generador de keys DitcoinBots</h1>
+<div class="warn"><b>ARCHIVO PRIVADO — NO LO SUBAS A LA WEB NI LO COMPARTAS.</b> Quien tenga este archivo puede generar keys válidas. Guárdalo solo en tu ordenador. Cuando alguien pague por PayPal, genera aquí su key y envíasela por Telegram/X/email.</div>
+
+<div class="card">
+  <div class="row">
+    <div>
+      <label>Tipo de licencia</label>
+      <select id="kind">
+        <option value="LIFE">★ DE POR VIDA (pago único $150)</option>
+        <option value="month">📅 Mensual (este mes)</option>
+        <option value="nextmonth">📅 Mensual (mes que viene)</option>
+      </select>
+    </div>
+    <div>
+      <label>Cantidad</label>
+      <input type="number" id="qty" value="1" min="1" max="50" style="width:80px">
+    </div>
+    <button id="gen">Generar</button>
+    <button class="ghost" id="copyAll">Copiar todas</button>
+  </div>
+  <div class="keys" id="out"></div>
+</div>
+
+<p class="muted">
+  Formato: <b>DITCOIN-LIFE-XXXXX-CHK</b> (para siempre) · <b>DITCOIN-YYMM-XXXXX-CHK</b> (válida hasta fin de ese mes — el cliente mensual recibe una key nueva cada mes al renovar).<br><br>
+  Flujo de venta: 1) el cliente paga en <b>paypal.me/KaoEbooks</b> → 2) te escribe a <b>@degenkao</b> con el recibo → 3) generas la key aquí y se la envías → 4) la pega en el bot (Wallet / En vivo → Licencia) y el modo real se desbloquea al instante.<br><br>
+  ⚠️ Nota técnica honesta: la validación es local (el bot corre 100% en el navegador del cliente, sin servidor). Un programador podría saltarse el candado — como en cualquier software offline. El valor real que retiene al cliente son las <b>actualizaciones y el soporte</b>, que solo recibe quien tiene key.
+</p>
+
+<script>
+'use strict';
+// mismo algoritmo que valida el bot (kaomemebot.html)
+function licChecksum(body){ let h=7; for(const c of body) h=(h*31+c.charCodeAt(0))%1679616; return h.toString(36).toUpperCase().padStart(4,'0'); }
+const AB='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function seg(n){ let s=''; const a=new Uint32Array(n); crypto.getRandomValues(a); for(let i=0;i<n;i++) s+=AB[a[i]%AB.length]; return s; }
+function makeKey(kind){
+  let head;
+  if(kind==='LIFE') head='LIFE';
+  else {
+    const d=new Date();
+    if(kind==='nextmonth') d.setMonth(d.getMonth()+1);
+    head=String(d.getFullYear()%100).padStart(2,'0')+String(d.getMonth()+1).padStart(2,'0');
+  }
+  const body=seg(5);
+  return `DITCOIN-${head}-${body}-${licChecksum(head+'-'+body)}`;
+}
+let last=[];
+document.getElementById('gen').onclick=()=>{
+  const kind=document.getElementById('kind').value;
+  const qty=Math.min(50,Math.max(1,+document.getElementById('qty').value||1));
+  last=Array.from({length:qty},()=>makeKey(kind));
+  document.getElementById('out').innerHTML=last.map(k=>`<div><b>${k}</b><span class="copy" onclick="navigator.clipboard.writeText('${k}');this.textContent='✓ copiada'">copiar</span></div>`).join('');
+};
+document.getElementById('copyAll').onclick=()=>{ if(last.length){ navigator.clipboard.writeText(last.join('\n')); alert(last.length+' key(s) copiadas'); } };
+</script>
+</body>
+</html>
